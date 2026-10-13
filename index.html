@@ -14,11 +14,11 @@
       --border: #e2e8f0;
       --success: #16a34a;
       --warning: #f59e0b;
+      --danger: #dc2626;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
     
-    /* Header Nav */
     header {
       background: white;
       border-bottom: 2px solid var(--border);
@@ -54,12 +54,48 @@
       font-size: 14px;
     }
 
-    /* Container */
     .container { max-width: 1200px; margin: 20px auto; padding: 0 16px; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* Layout Ujian */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    /* Screen Registrasi Peserta */
+    .login-box {
+      max-width: 480px;
+      margin: 40px auto;
+    }
+    .form-group {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+    }
+
+    /* Grid Ujian */
     .exam-grid {
       display: grid;
       grid-template-columns: 1fr 300px;
@@ -68,13 +104,16 @@
     @media(max-width: 900px) {
       .exam-grid { grid-template-columns: 1fr; }
     }
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
+    .student-badge-bar {
+      display: flex;
+      gap: 16px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 14px;
     }
     .reading-passage {
       background: #f8fafc;
@@ -84,13 +123,6 @@
       border-radius: 0 6px 6px 0;
       font-size: 15px;
       white-space: pre-line;
-    }
-    .reading-passage h4 {
-      color: var(--primary);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      font-size: 14px;
-      letter-spacing: 0.5px;
     }
     .question-title {
       font-size: 17px;
@@ -106,19 +138,18 @@
       border: 1px solid var(--border);
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+      transition: background 0.15s;
     }
     .option-label:hover { background: #f1f5f9; }
     .option-label input { margin-top: 4px; }
 
-    /* Navigasi Soal */
     .btn-nav-row {
       display: flex;
       justify-content: space-between;
       margin-top: 24px;
     }
     .btn {
-      padding: 8px 16px;
+      padding: 10px 16px;
       border-radius: 6px;
       font-weight: 600;
       cursor: pointer;
@@ -128,9 +159,9 @@
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .btn-warning { background: var(--warning); color: white; }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-danger { background: var(--danger); color: white; }
 
-    /* Palet Nomor Soal */
     .number-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -150,20 +181,11 @@
     .num-btn.answered { background: var(--primary); color: white; border-color: var(--primary); }
     .num-btn.current { border: 2px solid #000; }
 
-    /* Modal / Form Kunci Sandi */
     .auth-box {
       max-width: 450px;
-      margin: 80px auto;
+      margin: 40px auto;
       text-align: center;
       padding: 30px;
-    }
-    .auth-box input {
-      width: 100%;
-      padding: 10px 14px;
-      margin: 16px 0;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 16px;
     }
     .expl-item {
       border-bottom: 1px solid var(--border);
@@ -189,8 +211,8 @@
       <span style="font-size: 12px; color: #64748b;">Paket 1 TKA 2026 - Bahasa Indonesia</span>
     </div>
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('exam')">Lembar Ujian</button>
-      <button class="tab-btn" onclick="switchTab('solutions')">🔒 Kunci & Pembahasan</button>
+      <button class="tab-btn active" onclick="switchTab('exam', this)">Lembar Ujian</button>
+      <button class="tab-btn" onclick="switchTab('solutions', this)">🔒 Kunci & Pembahasan</button>
     </div>
     <div class="timer-badge" id="timer">Waktu: 60:00</div>
   </header>
@@ -198,42 +220,84 @@
   <div class="container">
     <!-- TAB 1: UJIAN -->
     <div id="exam-tab" class="tab-content active">
-      <div class="exam-grid">
-        <!-- Area Soal & Wacana -->
-        <div>
-          <div class="card">
-            <div id="reading-area" class="reading-passage"></div>
-            <div id="question-area">
-              <div class="question-title" id="q-text"></div>
-              <div class="options-group" id="q-options"></div>
-            </div>
-            <div class="btn-nav-row">
-              <button class="btn btn-outline" id="prev-btn" onclick="prevQuestion()">Sebelumnya</button>
-              <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()">Berikutnya</button>
-            </div>
-          </div>
+
+      <!-- FORM IDENTITAS PESERTA -->
+      <div id="start-screen" class="card login-box">
+        <h3 style="margin-bottom: 6px; text-align: center;">Identitas Peserta Ujian</h3>
+        <p style="font-size: 14px; color: #64748b; margin-bottom: 20px; text-align: center;">Silakan lengkapi data diri sebelum memulai pengerjaan.</p>
+        
+        <div class="form-group">
+          <label for="student-name">Nama Lengkap Siswa</label>
+          <input type="text" id="student-name" class="form-control" placeholder="Contoh: Ahmad Fadilah" autocomplete="off">
         </div>
 
-        <!-- Sidebar Nomor Soal -->
-        <div>
-          <div class="card">
-            <h4 style="margin-bottom: 8px;">Daftar Soal</h4>
-            <div class="number-grid" id="number-palette"></div>
-            <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
-            <button class="btn btn-primary" style="width: 100%;" onclick="submitExam()">Selesai & Kumpulkan</button>
-            <div id="score-result" style="margin-top: 16px; font-weight: bold; text-align: center;"></div>
+        <div class="form-group">
+          <label for="student-class">Kelas</label>
+          <select id="student-class" class="form-control">
+            <option value="">-- Pilih Kelas --</option>
+            <option value="9A">Kelas 9A</option>
+            <option value="9B">Kelas 9B</option>
+            <option value="9C">Kelas 9C</option>
+            <option value="9D">Kelas 9D</option>
+            <option value="9E">Kelas 9E</option>
+            <option value="9F">Kelas 9F</option>
+            <option value="9G">Kelas 9G</option>
+            <option value="9H">Kelas 9H</option>
+            <option value="9I">Kelas 9I</option>
+            <option value="9J">Kelas 9J</option>
+          </select>
+        </div>
+
+        <p id="start-error" style="color: red; font-size: 13px; margin-bottom: 12px; display: none;">Harap isi nama dan pilih kelas terlebih dahulu!</p>
+
+        <button class="btn btn-primary" style="width: 100%;" onclick="startExamSession()">Mulai Ujian</button>
+      </div>
+
+      <!-- LEMBAR SOAL UJIAN -->
+      <div id="exam-screen" style="display: none;">
+        <div class="student-badge-bar">
+          <div><strong>Nama:</strong> <span id="badge-name">-</span></div>
+          <div><strong>Kelas:</strong> <span id="badge-class">-</span></div>
+        </div>
+
+        <div class="exam-grid">
+          <div>
+            <div class="card">
+              <div id="reading-area" class="reading-passage"></div>
+              <div id="question-area">
+                <div class="question-title" id="q-text"></div>
+                <div class="options-group" id="q-options"></div>
+              </div>
+              <div class="btn-nav-row">
+                <button class="btn btn-outline" id="prev-btn" onclick="prevQuestion()">Sebelumnya</button>
+                <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()">Berikutnya</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <h4 style="margin-bottom: 8px;">Daftar Soal</h4>
+              <div class="number-grid" id="number-palette"></div>
+              <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+              <button class="btn btn-primary" style="width: 100%;" onclick="submitExam()">Selesai & Kumpulkan</button>
+              <div id="score-result" style="margin-top: 16px; font-weight: bold; text-align: center;"></div>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
 
-    <!-- TAB 2: PEMBAHASAN (DIKUNCI) -->
+    <!-- TAB 2: PEMBAHASAN -->
     <div id="solutions-tab" class="tab-content">
       <!-- Layar Terkunci -->
       <div id="lock-screen" class="card auth-box">
-        <h3 style="margin-bottom: 8px;">Area Khusus Terproteksi</h3>
-        <p style="font-size: 14px; color: #64748b;">Kunci jawaban dan pembahasan dienkripsi. Masukkan kata sandi pengawas/guru untuk membukanya.</p>
-        <input type="password" id="pass-input" placeholder="Masukkan password (default: guru123)">
+        <h3 style="margin-bottom: 8px;">Area Khusus Pengawas/Guru</h3>
+        <p style="font-size: 14px; color: #64748b;">Masukkan kode pengawas untuk membuka kunci pembahasan.</p>
+        <div class="form-group" style="margin-top: 16px;">
+          <input type="password" id="pass-input" class="form-control" placeholder="Masukkan password pengawas">
+        </div>
         <button class="btn btn-primary" style="width: 100%;" onclick="unlockSolutions()">Buka Kunci</button>
         <p id="lock-msg" style="color: red; margin-top: 10px; font-size: 13px;"></p>
       </div>
@@ -241,9 +305,9 @@
       <!-- Layar Kunci Terbuka -->
       <div id="unlocked-screen" style="display: none;">
         <div class="card">
-          <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 20px;">
+          <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
             <h3>Kunci Jawaban dan Pembahasan Lengkap</h3>
-            <button class="btn btn-outline" onclick="lockAgain()">Kunci Kembali</button>
+            <button class="btn btn-danger" onclick="lockAgain()">Kunci Kembali</button>
           </div>
           <div id="solutions-list"></div>
         </div>
@@ -252,7 +316,51 @@
   </div>
 
   <script>
-    // DATA WACANA DAN SOAL DARI DOKUMEN
+    let currentStudent = { name: "", class: "" };
+    const SECRET_CODE = "28bisa"; // Password pengawas
+
+    function startExamSession() {
+      const name = document.getElementById("student-name").value.trim();
+      const sClass = document.getElementById("student-class").value;
+      const err = document.getElementById("start-error");
+
+      if (!name || !sClass) {
+        err.style.display = "block";
+        return;
+      }
+      err.style.display = "none";
+
+      currentStudent = { name: name, class: sClass };
+      document.getElementById("badge-name").textContent = name;
+      document.getElementById("badge-class").textContent = sClass;
+
+      document.getElementById("start-screen").style.display = "none";
+      document.getElementById("exam-screen").style.display = "block";
+
+      renderPalette();
+      loadQuestion(0);
+      startTimer(60 * 60);
+    }
+
+    function unlockSolutions() {
+      const pass = document.getElementById("pass-input").value;
+      const msg = document.getElementById("lock-msg");
+      if (pass === SECRET_CODE) {
+        document.getElementById("lock-screen").style.display = "none";
+        document.getElementById("unlocked-screen").style.display = "block";
+        document.getElementById("pass-input").value = "";
+        msg.textContent = "";
+      } else {
+        msg.textContent = "Password salah. Hubungi guru pengawas.";
+      }
+    }
+
+    function lockAgain() {
+      document.getElementById("pass-input").value = "";
+      document.getElementById("lock-screen").style.display = "block";
+      document.getElementById("unlocked-screen").style.display = "none";
+    }
+
     const passages = {
       p1: `PERLUKAH MEMBAWA BEKAL MAKANAN DARI RUMAH?
 Membawa bekal makanan dari rumah menjadi kebiasaan yang dilakukan sebagian siswa. Namun, ada perbedaan pendapat mengenai kebiasaan tersebut. Sebagian pihak menilai membawa bekal lebih baik untuk kesehatan, sedangkan pihak lain menganggap membeli makanan di sekolah juga dapat menjadi pilihan selama makanan yang dikonsumsi sesuai kebutuhan.
@@ -364,7 +472,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Bekal dari rumah membantu keluarga menghemat seluruh pengeluaran makanan setiap hari."
         ],
         key: 0,
-        expl: "A benar, karena pihak pendukung menyatakan makanan dari rumah dapat dipilih dan disiapkan sesuai kebutuhan gizi. B salah, karena teks tidak menyatakan bahwa membawa bekal membuat siswa tidak perlu memilih makanan. C salah, karena teks hanya menyatakan makanan dapat diatur, bukan menjamin jumlahnya selalu sesuai. D salah, karena penghematan pengeluaran tidak dibahas dalam argumen pihak pendukung."
+        expl: "A benar, karena pihak pendukung menyatakan makanan dari rumah dapat dipilih dan disiapkan sesuai kebutuhan gizi[cite: 1]. B salah, karena teks tidak menyatakan bahwa membawa bekal membuat siswa tidak perlu memilih makanan[cite: 1]. C salah, karena teks hanya menyatakan makanan dapat diatur, bukan menjamin jumlahnya selalu sesuai[cite: 1]. D salah, karena penghematan pengeluaran tidak dibahas dalam argumen pihak pendukung[cite: 1]."
       },
       {
         id: 2, passage: 'p1',
@@ -376,7 +484,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Pengurangan gula, garam, dan minyak dapat membantu siswa memilih makanan yang lebih sehat."
         ],
         key: 0,
-        expl: "A benar, karena gagasan tersebut menjadi dasar pihak yang tidak menganggap bekal sebagai keharusan. B, C, dan D merupakan gagasan yang lebih mendukung alasan pihak yang membawa bekal atau mendukung pola makan sehat secara umum, bukan inti argumen pihak kontra."
+        expl: "A benar, karena gagasan tersebut menjadi dasar pihak yang tidak menganggap bekal sebagai keharusan[cite: 1]. B, C, dan D merupakan gagasan yang lebih mendukung alasan pihak yang membawa bekal atau mendukung pola makan sehat secara umum, bukan inti argumen pihak kontra[cite: 1]."
       },
       {
         id: 3, passage: 'p1',
@@ -388,7 +496,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Siswa yang membawa bekal pasti memiliki pola makan yang lebih sehat daripada siswa lainnya."
         ],
         key: 0,
-        expl: "Kalimat A paling tepat karena menyampaikan pendapat secara proporsional dan tidak mutlak. Pernyataan tersebut menggunakan kata dapat dan memberikan kondisi yang mendukung argumennya. B salah karena mutlak, C salah karena kata tentu tidak didukung teks, D salah karena menggeneralisasi."
+        expl: "Kalimat A paling tepat karena menyampaikan pendapat secara proporsional dan tidak mutlak[cite: 1]. Pernyataan tersebut menggunakan kata dapat dan memberikan kondisi yang mendukung argumennya[cite: 1]. B salah karena kata jelas dan semua membuat pernyataan mutlak[cite: 1]. C salah karena kata tentu menunjukkan kepastian yang tidak didukung teks[cite: 1]. D salah karena kata pasti menggeneralisasi kondisi semua siswa[cite: 1]."
       },
       {
         id: 4, passage: 'p2',
@@ -400,7 +508,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "proses tumbuhan menguraikan organisme yang terperangkap di dalam bagian tubuhnya"
         ],
         key: 0,
-        expl: "A benar, sesuai makna ilmiah dan konteks istilah fotosintesis pada kalimat teks. B, C, dan D merupakan adaptasi khusus kantong semar, bukan fotosintesis."
+        expl: "A benar, sesuai makna istilah fotosintesis[cite: 1]. B salah karena memperoleh unsur hara dari organisme yang terperangkap merupakan kemampuan tambahan[cite: 1]. C salah karena aroma berfungsi menarik serangga[cite: 1]. D salah karena penguraian terjadi pada cairan kantong[cite: 1]."
       },
       {
         id: 5, passage: 'p2',
@@ -412,7 +520,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Melanjutkan informasi dengan menjelaskan proses tumbuhan melakukan fotosintesis dalam lingkungan tertentu."
         ],
         key: 0,
-        expl: "Paragraf kedua membahas cara kantong semar menangkap dan menguraikan serangga, sedangkan paragraf ketiga mengembangkan informasi tersebut dengan menjelaskan bahwa kemampuan tersebut membuat kantong semar memperoleh sebagian unsur hara dari organisme yang terperangkap."
+        expl: "Paragraf kedua membahas cara kantong semar menangkap dan menguraikan serangga, sedangkan paragraf ketiga mengembangkan informasi tersebut dengan menjelaskan bahwa kemampuan tersebut membuat kantong semar memperoleh sebagian unsur hara dari organisme yang terperangkap[cite: 1]."
       },
       {
         id: 6, passage: 'p2',
@@ -424,7 +532,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Kemampuan membentuk kantong dapat semakin berkurang karena tumbuhan tidak memperoleh cukup cahaya matahari."
         ],
         key: 0,
-        expl: "A benar, karena semakin rendah unsur hara di lingkungan, kemampuan memperoleh tambahan unsur hara melalui organisme yang terperangkap menjadi semakin berkaitan dengan kemampuan bertahan tumbuhan."
+        expl: "A benar, karena semakin rendah unsur hara di lingkungan, kemampuan memperoleh tambahan unsur hara melalui organisme yang terperangkap menjadi semakin berkaitan dengan kemampuan bertahan tumbuhan[cite: 1]."
       },
       {
         id: 7, passage: 'p3',
@@ -436,7 +544,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Mempercepat sinkronisasi data agar pembaruan berlangsung secara otomatis."
         ],
         key: 0,
-        expl: "A benar, teks menyebutkan fitur ini membatasi beberapa aktivitas perangkat sehingga penggunaan daya dapat dikurangi."
+        expl: "A benar, sesuai kalimat bahwa fitur tersebut membatasi beberapa aktivitas perangkat untuk mengurangi penggunaan daya[cite: 1]."
       },
       {
         id: 8, passage: 'p3',
@@ -448,7 +556,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Pengguna tidak dapat menggunakan aplikasi lain selama perangkat menyala."
         ],
         key: 0,
-        expl: "Langkah memilih Baterai diperlukan untuk menemukan pilihan Mode Hemat Baterai. Jika langkah tersebut dilewati, pengguna tidak sampai pada menu yang menyediakan fitur tersebut."
+        expl: "Langkah memilih Baterai diperlukan untuk menemukan pilihan Mode Hemat Baterai[cite: 1]. Jika langkah tersebut dilewati, pengguna tidak sampai pada menu yang menyediakan fitur tersebut[cite: 1]."
       },
       {
         id: 9, passage: 'p3',
@@ -460,7 +568,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Langkahnya tidak dapat diterapkan karena setiap ponsel memiliki pengaturan yang sama sekali berbeda."
         ],
         key: 0,
-        expl: "A benar, karena langkah-langkahnya sederhana dan menu tersedia langsung di dalam menu Pengaturan perangkat."
+        expl: "A benar, karena prosedurnya terdiri atas langkah sederhana melalui menu Pengaturan dan Baterai[cite: 1]."
       },
       {
         id: 10, passage: 'p4',
@@ -472,7 +580,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Sirene"
         ],
         key: 0,
-        expl: "Teks secara langsung menyebut bahwa jalan diterangi hologram berbentuk bunga."
+        expl: "Teks secara langsung menyebut bahwa jalan diterangi hologram berbentuk bunga[cite: 1]."
       },
       {
         id: 11, passage: 'p4',
@@ -484,7 +592,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Membantu pembaca membandingkan teknologi Lumera dengan teknologi masa kini."
         ],
         key: 0,
-        expl: "Citraan pendengaran melalui kata “terdengar” dan “berdengung” membuat pembaca seolah-olah mendengar suara mesin. Dalam konteks cerita, suara yang semakin keras memperkuat suasana tegang."
+        expl: "Citraan pendengaran melalui kata “terdengar” dan “berdengung” membuat pembaca seolah mendengar suara mesin dan memperkuat suasana tegang[cite: 1]."
       },
       {
         id: 12, passage: 'p4',
@@ -496,7 +604,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Nara melihat gedung dan kendaraan yang memiliki bentuk berbeda dari biasanya."
         ],
         key: 0,
-        expl: "Ketegangan muncul karena Nara harus menggunakan Chronoband dalam situasi genting untuk membantu memperbaiki inti energi kota."
+        expl: "Ketegangan muncul karena Nara harus menggunakan Chronoband dalam situasi genting untuk membantu memperbaiki inti energi kota[cite: 1]."
       },
       {
         id: 13, passage: 'p5',
@@ -508,7 +616,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Mengembangkan kemampuan bekerja sama bagi anggota komunitas sekolah."
         ],
         key: 0,
-        expl: "Disebutkan dalam teks: 'membantu anak-anak di sekitar kampung mendapatkan pendampingan belajar'."
+        expl: "Disebutkan dalam e-mail: membantu anak-anak di sekitar kampung mendapatkan pendampingan belajar[cite: 1]."
       },
       {
         id: 14, passage: 'p5',
@@ -520,7 +628,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Kegiatan membaca mandiri di sebuah perpustakaan sekolah."
         ],
         key: 0,
-        expl: "Kegiatan secara spesifik berlokasi dan berfokus pada pendampingan belajar di Rumah Baca Pelita."
+        expl: "Objek kegiatan berfokus pada pendampingan belajar di Rumah Baca Pelita[cite: 1]."
       },
       {
         id: 15, passage: 'p5',
@@ -532,7 +640,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Rumah baca merupakan tempat yang tepat untuk mengadakan kegiatan sekolah."
         ],
         key: 0,
-        expl: "Dita menyimpulkan: 'Aku juga belajar bahwa membantu orang lain tidak selalu harus dilakukan dengan hal besar' -> peduli melalui kegiatan sederhana."
+        expl: "Dita menyimpulkan bahwa membantu orang lain tidak selalu harus dilakukan dengan hal besar[cite: 1]."
       },
       {
         id: 16, passage: 'p6',
@@ -544,7 +652,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Penyerapan panas membuat permukaan tersebut meningkatkan pergerakan udara di antara gedung."
         ],
         key: 0,
-        expl: "Teks menjelaskan bahwa aspal dan beton menyerap serta menyimpan panas matahari, kemudian melepaskannya kembali ke lingkungan."
+        expl: "Bahan aspal dan beton menyerap serta menyimpan panas matahari, kemudian melepaskannya kembali ke lingkungan[cite: 1]."
       },
       {
         id: 17, passage: 'p6',
@@ -556,7 +664,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Penyerapan air meningkat sehingga kawasan perkotaan menjadi semakin banyak ditumbuhi tanaman."
         ],
         key: 0,
-        expl: "Teks menyatakan: 'Jika kawasan hijau semakin berkurang, suhu lingkungan dapat menjadi semakin tinggi. Kondisi tersebut dapat membuat penggunaan pendingin ruangan meningkat.'"
+        expl: "Teks menyatakan jika kawasan hijau berkurang, suhu lingkungan meningkat dan penggunaan pendingin ruangan meningkat[cite: 1]."
       },
       {
         id: 18, passage: 'p6',
@@ -568,7 +676,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Penggunaan permukaan penyerap panas dapat menjadi salah satu langkah mengurangi suhu perkotaan."
         ],
         key: 0,
-        expl: "Teks secara eksplisit menyebut penambahan ruang terbuka hijau dan penanaman pohon sebagai upaya mengurangi dampak pulau panas."
+        expl: "Teks secara eksplisit menyebut penambahan ruang terbuka hijau dan penanaman pohon sebagai upaya mengurangi dampak pulau panas[cite: 1]."
       },
       {
         id: 19, passage: 'p7',
@@ -592,7 +700,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Tanda pita pada pohon membuat Raka dan Bima mengubah tujuan perjalanan menuju tempat lain."
         ],
         key: 0,
-        expl: "Perubahan cuaca yang memburuk menjadi alasan utama kedua tokoh membatalkan niat melanjutkan pendakian dan memilih kembali."
+        expl: "Perubahan cuaca yang memburuk menjadi alasan utama kedua tokoh memutuskan untuk kembali[cite: 1]."
       },
       {
         id: 21, passage: 'p7',
@@ -604,7 +712,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Menggunakan tanda tertentu untuk mengenali jalan yang pernah dilalui."
         ],
         key: 0,
-        expl: "Pelajaran paling utama dan relevan dalam kehidupan sehari-hari adalah mengutamakan keselamatan saat situasi lingkungan mulai memburuk."
+        expl: "Pilihan A mencerminkan sikap mengutamakan keselamatan saat situasi lingkungan mulai memburuk."
       },
       {
         id: 22, passage: 'p8',
@@ -616,7 +724,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Mengutamakan kegiatan rekreasi dalam ruangan dengan teknologi terkini."
         ],
         key: 0,
-        expl: "Paragraf pertama kalimat awal menyatakan bahwa desa tersebut menawarkan pengalaman wisata yang memadukan pemandangan alam dengan kehidupan masyarakat setempat."
+        expl: "Paragraf pertama menyatakan bahwa tempat wisata tersebut memadukan pemandangan alam dengan kehidupan masyarakat setempat[cite: 1]."
       },
       {
         id: 23, passage: 'p8',
@@ -628,7 +736,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Desa Wisata Cibiru menjadi tempat wisata yang lebih ramai dibandingkan kawasan wisata lainnya."
         ],
         key: 0,
-        expl: "Ulasan merangkum daya tarik perpaduan alam & budaya lokal, serta menyertakan catatan bahwa fasilitas jalan/pengelolaan masih perlu peningkatan."
+        expl: "Ulasan merangkum kelebihan alam dan budaya setempat, serta menyoroti perlunya perbaikan fasilitas pengelola[cite: 1]."
       },
       {
         id: 24, passage: 'p8',
@@ -640,7 +748,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Paragraf terakhir membandingkan objek wisata dengan beberapa tempat lain di daerah tersebut."
         ],
         key: 0,
-        expl: "Paragraf terakhir menyimpulkan keseluruhan daya tarik desa wisata sekaligus memberikan rekomendasi/saran perbaikan fasilitas pengelola."
+        expl: "Paragraf terakhir merangkum kelebihan objek sekaligus memberi saran peningkatan fasilitas kenyamanan[cite: 1]."
       },
       {
         id: 25, passage: 'p9',
@@ -652,7 +760,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Angklung → daerah pertunjukan → jumlah pemain → jenis lagu → perkembangan teknologi"
         ],
         key: 0,
-        expl: "Urutan paragraf membahas bahan dan cara main (par. 1), formasi & tugas pemain (par. 2), nilai budaya (par. 3), dan keberlangsungan melalui edukasi (par. 4)."
+        expl: "Urutan bahasan meliputi bahan dan cara main, peran tiap pemain, nilai budaya gotong royong, dan pelestarian melalui pendidikan[cite: 1]."
       },
       {
         id: 26, passage: 'p9',
@@ -664,7 +772,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Angklung kehilangan nilai budaya karena dimainkan secara bersama-sama dalam pendidikan."
         ],
         key: 0,
-        expl: "Paragraf terakhir menggarisbawahi bahwa pengenalan di bidang pendidikan menjaga keberlangsungan hidup alat musik tersebut di generasi muda."
+        expl: "Pendidikan menjadi sarana utama menjaga keberlangsungan angklung agar generasi berikutnya berkesempatan melestarikannya[cite: 1]."
       },
       {
         id: 27, passage: 'p9',
@@ -676,7 +784,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Istilah tersebut memperjelas bentuk tabung bambu yang digunakan dalam pertunjukan."
         ],
         key: 0,
-        expl: "Istilah nada merujuk langsung pada perbedaan tinggi-rendah bunyi yang dikeluarkan tabung bambu berukuran tertentu."
+        expl: "Istilah nada memperjelas fungsi ukuran dan susunan tabung bambu yang menghasilkan ragam bunyi musik berbeda[cite: 1]."
       },
       {
         id: 28, passage: 'p10',
@@ -688,7 +796,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Hujan turun → air berkurang → kemarau datang → hewan bekerja sama → Pipit membuat penutup"
         ],
         key: 0,
-        expl: "Alur dongeng bergerak runtut mulai dari kemarau panjang, persediaan air menipis, inisiatif burung pipit, kerja sama seluruh hewan, hingga akhirnya hujan tiba."
+        expl: "Alur dongeng bergerak runtut dari kemarau, persediaan air berkurang, Pipit berinisiatif, hewan gotong royong, hingga hujan turun[cite: 1]."
       },
       {
         id: 29, passage: 'p10',
@@ -700,7 +808,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Tegas dan berusaha mengatur semua hewan agar mengikuti keinginannya."
         ],
         key: 0,
-        expl: "Kancil peduli pada krisis air dan tidak bertindak egois, melainkan menggerakkan hewan-hewan lain untuk bergotong royong menjaga mata air."
+        expl: "Kancil peduli terhadap kelangsungan sumber air dan menggerakkan komunitas hewan bekerja sama membuat penutup mata air[cite: 1]."
       },
       {
         id: 30, passage: 'p10',
@@ -712,21 +820,15 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
           "Menggambarkan kesulitan hewan dalam menemukan sumber air baru di dalam hutan."
         ],
         key: 0,
-        expl: "Ungkapan tersebut bermakna preventif: mengajak bertindak proaktif menjaga sumber daya sebelum terjadi musibah atau krisis yang lebih parah."
+        expl: "Ungkapan tersebut menegaskan pesan moral preventif agar segera bertindak sebelum krisis berkembang makin parah[cite: 1]."
       }
     ];
 
-    // STATE APLIKASI
     let currentIndex = 0;
     const userAnswers = {};
-    const secretCode = "guru123"; // Kata Sandi Kunci Pembahasan
 
-    // Inisialisasi
     window.onload = function() {
-      renderPalette();
-      loadQuestion(0);
       renderSolutions();
-      startTimer(60 * 60);
     };
 
     function renderPalette() {
@@ -746,14 +848,9 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
       currentIndex = idx;
       const q = questions[idx];
       
-      // Update Wacana
-      const readingArea = document.getElementById("reading-area");
-      readingArea.textContent = passages[q.passage] || "";
-
-      // Update Teks Soal
+      document.getElementById("reading-area").textContent = passages[q.passage] || "";
       document.getElementById("q-text").textContent = `Soal ${idx + 1}: ${q.q}`;
 
-      // Update Pilihan Jawaban
       const optContainer = document.getElementById("q-options");
       optContainer.innerHTML = "";
       const optLabels = ['A', 'B', 'C', 'D'];
@@ -781,16 +878,15 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
         optContainer.appendChild(label);
       });
 
-      // Update Button State
       document.getElementById("prev-btn").disabled = (idx === 0);
       document.getElementById("next-btn").textContent = (idx === questions.length - 1) ? "Selesai" : "Berikutnya";
-
       updatePaletteStatus();
     }
 
     function updatePaletteStatus() {
       questions.forEach((_, idx) => {
         const btn = document.getElementById(`palette-${idx}`);
+        if (!btn) return;
         btn.className = "num-btn";
         if (userAnswers[idx] !== undefined) btn.classList.add("answered");
         if (idx === currentIndex) btn.classList.add("current");
@@ -819,47 +915,33 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
         }
       });
 
-      const confirmSubmit = confirm(`Anda telah menjawab ${answeredCount} dari ${questions.length} soal.\nApakah Anda yakin ingin menyelesaikan ujian?`);
+      const confirmSubmit = confirm(`Nama: ${currentStudent.name} (${currentStudent.class})\nAnda telah menjawab ${answeredCount} dari ${questions.length} soal.\nApakah Anda yakin ingin mengakhiri ujian?`);
       if (confirmSubmit) {
         const total = questions.length;
         const nilai = Math.round((score / total) * 100);
         const resDiv = document.getElementById("score-result");
-        resDiv.innerHTML = `Skor Anda: <span style="color:var(--primary); font-size:20px;">${nilai}</span> / 100<br>(Benar: ${score} dari ${total} soal)`;
-        alert(`Ujian Selesai!\nNilai: ${nilai}\nBenar: ${score}/${total}`);
+        resDiv.innerHTML = `
+          <div style="background:#f1f5f9; padding: 12px; border-radius: 6px; margin-top: 10px;">
+            <p style="font-size:13px; color:#64748b;">Hasil Peserta:</p>
+            <p style="font-size:15px; font-weight:700;">${currentStudent.name} (${currentStudent.class})</p>
+            <p style="margin-top:6px;">Skor: <span style="color:var(--primary); font-size:22px;">${nilai}</span> / 100</p>
+            <p style="font-size:12px; color:#475569;">Benar: ${score} | Salah: ${total - score}</p>
+          </div>
+        `;
+        alert(`Ujian Selesai!\nSiswa: ${currentStudent.name} (${currentStudent.class})\nNilai: ${nilai}\nBenar: ${score}/${total}`);
       }
     }
 
-    // Tab Switching
-    function switchTab(tab) {
+    function switchTab(tab, element) {
       document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
       document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
 
+      element.classList.add("active");
       if (tab === 'exam') {
-        event.target.classList.add("active");
         document.getElementById("exam-tab").classList.add("active");
       } else {
-        event.target.classList.add("active");
         document.getElementById("solutions-tab").classList.add("active");
       }
-    }
-
-    // Password Lock System
-    function unlockSolutions() {
-      const pass = document.getElementById("pass-input").value;
-      const msg = document.getElementById("lock-msg");
-      if (pass === secretCode) {
-        document.getElementById("lock-screen").style.display = "none";
-        document.getElementById("unlocked-screen").style.display = "block";
-        msg.textContent = "";
-      } else {
-        msg.textContent = "Kata sandi salah! Hubungi guru/pengawas.";
-      }
-    }
-
-    function lockAgain() {
-      document.getElementById("pass-input").value = "";
-      document.getElementById("lock-screen").style.display = "block";
-      document.getElementById("unlocked-screen").style.display = "none";
     }
 
     function renderSolutions() {
@@ -879,7 +961,6 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
       });
     }
 
-    // Timer Sederhana
     function startTimer(duration) {
       let timer = duration;
       const display = document.getElementById('timer');
@@ -894,7 +975,7 @@ Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadar
 
         if (--timer < 0) {
           clearInterval(interval);
-          alert("Waktu habis!");
+          alert("Waktu pengerjaan telah habis!");
           submitExam();
         }
       }, 1000);
