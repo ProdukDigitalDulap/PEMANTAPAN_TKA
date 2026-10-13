@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Simulasi Ujian TKA Bahasa Indonesia 2026</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --warning: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
+    
+    /* Header Nav */
+    header {
+      background: white;
+      border-bottom: 2px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .tabs { display: flex; gap: 8px; }
+    .tab-btn {
+      padding: 8px 18px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .timer-badge {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    /* Container */
+    .container { max-width: 1200px; margin: 20px auto; padding: 0 16px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Layout Ujian */
+    .exam-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+    }
+    @media(max-width: 900px) {
+      .exam-grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+    .reading-passage {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 16px;
+      margin-bottom: 20px;
+      border-radius: 0 6px 6px 0;
+      font-size: 15px;
+      white-space: pre-line;
+    }
+    .reading-passage h4 {
+      color: var(--primary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+    .question-title {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .options-group { display: flex; flex-direction: column; gap: 10px; }
+    .option-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .option-label:hover { background: #f1f5f9; }
+    .option-label input { margin-top: 4px; }
+
+    /* Navigasi Soal */
+    .btn-nav-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-warning { background: var(--warning); color: white; }
+
+    /* Palet Nomor Soal */
+    .number-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .num-btn {
+      padding: 10px 0;
+      text-align: center;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .num-btn.answered { background: var(--primary); color: white; border-color: var(--primary); }
+    .num-btn.current { border: 2px solid #000; }
+
+    /* Modal / Form Kunci Sandi */
+    .auth-box {
+      max-width: 450px;
+      margin: 80px auto;
+      text-align: center;
+      padding: 30px;
+    }
+    .auth-box input {
+      width: 100%;
+      padding: 10px 14px;
+      margin: 16px 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    .expl-item {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    .expl-item:last-child { border-bottom: none; }
+    .badge-key {
+      display: inline-block;
+      background: #dcfce7;
+      color: #15803d;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h3 style="font-size: 18px; font-weight: 700;">Simulasi Ujian TKA</h3>
+      <span style="font-size: 12px; color: #64748b;">Paket 1 TKA 2026 - Bahasa Indonesia</span>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('exam')">Lembar Ujian</button>
+      <button class="tab-btn" onclick="switchTab('solutions')">🔒 Kunci & Pembahasan</button>
+    </div>
+    <div class="timer-badge" id="timer">Waktu: 60:00</div>
+  </header>
+
+  <div class="container">
+    <!-- TAB 1: UJIAN -->
+    <div id="exam-tab" class="tab-content active">
+      <div class="exam-grid">
+        <!-- Area Soal & Wacana -->
+        <div>
+          <div class="card">
+            <div id="reading-area" class="reading-passage"></div>
+            <div id="question-area">
+              <div class="question-title" id="q-text"></div>
+              <div class="options-group" id="q-options"></div>
+            </div>
+            <div class="btn-nav-row">
+              <button class="btn btn-outline" id="prev-btn" onclick="prevQuestion()">Sebelumnya</button>
+              <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()">Berikutnya</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Nomor Soal -->
+        <div>
+          <div class="card">
+            <h4 style="margin-bottom: 8px;">Daftar Soal</h4>
+            <div class="number-grid" id="number-palette"></div>
+            <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+            <button class="btn btn-primary" style="width: 100%;" onclick="submitExam()">Selesai & Kumpulkan</button>
+            <div id="score-result" style="margin-top: 16px; font-weight: bold; text-align: center;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: PEMBAHASAN (DIKUNCI) -->
+    <div id="solutions-tab" class="tab-content">
+      <!-- Layar Terkunci -->
+      <div id="lock-screen" class="card auth-box">
+        <h3 style="margin-bottom: 8px;">Area Khusus Terproteksi</h3>
+        <p style="font-size: 14px; color: #64748b;">Kunci jawaban dan pembahasan dienkripsi. Masukkan kata sandi pengawas/guru untuk membukanya.</p>
+        <input type="password" id="pass-input" placeholder="Masukkan password (default: guru123)">
+        <button class="btn btn-primary" style="width: 100%;" onclick="unlockSolutions()">Buka Kunci</button>
+        <p id="lock-msg" style="color: red; margin-top: 10px; font-size: 13px;"></p>
+      </div>
+
+      <!-- Layar Kunci Terbuka -->
+      <div id="unlocked-screen" style="display: none;">
+        <div class="card">
+          <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 20px;">
+            <h3>Kunci Jawaban dan Pembahasan Lengkap</h3>
+            <button class="btn btn-outline" onclick="lockAgain()">Kunci Kembali</button>
+          </div>
+          <div id="solutions-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DATA WACANA DAN SOAL DARI DOKUMEN
+    const passages = {
+      p1: `PERLUKAH MEMBAWA BEKAL MAKANAN DARI RUMAH?
+Membawa bekal makanan dari rumah menjadi kebiasaan yang dilakukan sebagian siswa. Namun, ada perbedaan pendapat mengenai kebiasaan tersebut. Sebagian pihak menilai membawa bekal lebih baik untuk kesehatan, sedangkan pihak lain menganggap membeli makanan di sekolah juga dapat menjadi pilihan selama makanan yang dikonsumsi sesuai kebutuhan.
+
+Pihak yang mendukung membawa bekal berpendapat bahwa makanan dari rumah dapat dipilih dan disiapkan sesuai kebutuhan gizi. Orang tua juga dapat mengatur jumlah gula, garam, dan minyak yang digunakan dalam makanan. Selain itu, membawa bekal dapat membantu siswa menghindari pilihan makanan yang kurang sesuai dengan kondisi tubuhnya.
+
+Sebaliknya, pihak yang tidak mewajibkan membawa bekal berpendapat bahwa tidak semua keluarga memiliki waktu untuk menyiapkan makanan setiap pagi. Siswa juga dapat memilih makanan yang sehat di sekolah jika tersedia pilihan makanan yang bersih dan bergizi. Menurut mereka, yang lebih penting adalah kemampuan siswa memilih makanan secara bijak, bukan tempat makanan tersebut disiapkan.
+
+Kedua pendapat tersebut menunjukkan bahwa kebiasaan makan sehat dapat dilakukan dengan berbagai cara. Hal yang perlu diperhatikan adalah kandungan makanan, kebersihan, dan jumlah makanan yang dikonsumsi.`,
+
+      p2: `KANTONG SEMAR
+Kantong semar merupakan kelompok tumbuhan yang memiliki bentuk daun khas dan dapat ditemukan di berbagai wilayah tropis, termasuk beberapa kawasan hutan di Indonesia. Tumbuhan ini dikenal karena memiliki bagian berbentuk seperti kantong yang terbentuk dari perubahan ujung daun. Bentuk tersebut menjadi ciri yang membedakannya dari banyak tumbuhan lain.
+
+Kantong pada tumbuhan ini memiliki cairan di bagian dalam. Permukaannya dapat mengeluarkan aroma tertentu yang menarik serangga. Ketika serangga masuk ke dalam kantong, permukaan bagian dalam yang licin dapat membuatnya sulit keluar. Cairan di dalam kantong kemudian membantu proses penguraian tubuh serangga.
+
+Kemampuan tersebut membuat kantong semar termasuk tumbuhan yang memperoleh sebagian unsur hara dari organisme yang terperangkap. Cara memperoleh unsur hara ini menjadi salah satu keunikan kantong semar. Meskipun demikian, tumbuhan ini tetap melakukan fotosintesis seperti tumbuhan hijau lainnya.
+
+Keberadaan kantong semar berkaitan dengan kondisi lingkungan tempat tumbuhnya. Beberapa jenis dapat ditemukan pada kawasan yang memiliki tanah dengan kandungan unsur hara tertentu yang rendah. Kemampuan memperoleh tambahan unsur hara dari organisme yang terperangkap membantu tumbuhan tersebut bertahan dalam kondisi lingkungan tersebut.`,
+
+      p3: `CARA MENGAKTIFKAN MODE HEMAT BATERAI PADA PONSEL
+Mode hemat baterai dapat digunakan ketika daya ponsel mulai menipis. Fitur ini membantu membatasi beberapa aktivitas perangkat sehingga penggunaan daya dapat dikurangi.
+
+Untuk mengaktifkannya, buka menu Pengaturan, kemudian pilih menu Baterai. Setelah halaman baterai terbuka, cari pilihan Mode Hemat Baterai. Geser tombol pengaktifan hingga fitur tersebut menyala. Pada beberapa ponsel, pengguna dapat memilih persentase daya tertentu agar mode hemat baterai aktif secara otomatis.
+
+Setelah fitur aktif, beberapa aktivitas yang menggunakan daya cukup besar dapat dibatasi. Sinkronisasi data tertentu mungkin berlangsung lebih lambat, sementara kecerahan layar atau aktivitas aplikasi di latar belakang dapat dibatasi. Oleh karena itu, pengguna sebaiknya memeriksa kembali pengaturan tersebut setelah daya ponsel cukup.
+
+Jika mode hemat baterai ingin dinonaktifkan, pengguna dapat membuka kembali menu Pengaturan, memilih Baterai, kemudian mematikan fitur tersebut.`,
+
+      p4: `KOTA DI BALIK CAHAYA
+Pada tahun 2150, Nara menemukan sebuah pintu bercahaya di ruang bawah tanah rumah neneknya. Ketika disentuh, pintu itu terbuka menuju kota bernama Lumera. Gedung-gedung di kota tersebut melayang di udara, sedangkan kendaraan bergerak tanpa roda.
+
+Nara berjalan menyusuri jalan yang diterangi hologram berbentuk bunga. Di tengah kota, ia bertemu Arka, penjaga muda yang memberinya sebuah gelang bernama Chronoband. Gelang itu dapat memperlambat waktu selama beberapa detik.
+
+Tiba-tiba, sirene berbunyi. Sistem kota mendeteksi gangguan pada inti energi. Arka meminta Nara membantunya menuju menara pusat. Mereka berlari melewati jembatan kaca yang bergetar. Dari kejauhan terdengar suara mesin berdengung semakin keras. Nara merasakan udara di sekitarnya menjadi panas.
+
+Mereka akhirnya tiba di ruang inti. Dengan menggunakan Chronoband, Nara memperlambat waktu dan memberi Arka kesempatan memperbaiki mesin. Setelah gangguan teratasi, kota kembali bercahaya. Nara kemudian kembali melalui pintu yang sama, tetapi gelang pemberian Arka tetap berada di tangannya.`,
+
+      p5: `Untuk: Rani
+Subjek: Pengalaman Mengajar di Rumah Baca
+
+Hai, Rani!
+Minggu lalu aku mengikuti kegiatan sosial di Rumah Baca Pelita. Kegiatan itu diadakan oleh komunitas sekolahku untuk membantu anak-anak di sekitar kampung mendapatkan pendampingan belajar. Kami datang setiap Sabtu sore selama satu bulan.
+
+Pada pertemuan pertama, aku membantu anak-anak membaca cerita dan membuat gambar berdasarkan cerita tersebut. Awalnya beberapa anak masih malu untuk berbicara. Setelah kami mengajak mereka bermain sambil belajar, suasananya menjadi lebih santai. Aku juga belajar bahwa membantu orang lain tidak selalu harus dilakukan dengan hal besar.
+
+Menurutku, pengalaman ini sangat berkesan. Aku berharap kegiatan seperti ini dapat terus dilakukan karena selain membantu anak-anak, kegiatan tersebut membuat kami belajar bekerja sama dan lebih peduli terhadap lingkungan sekitar.
+
+Semoga kamu bisa ikut kalau kegiatan ini diadakan lagi.
+
+Salam,
+Dita`,
+
+      p6: `KETIKA KOTA MENJADI LEBIH PANAS
+Pada siang hari, kawasan perkotaan sering terasa lebih panas dibandingkan wilayah yang banyak ditumbuhi pepohonan. Fenomena ini berkaitan dengan pulau panas perkotaan, yaitu kondisi ketika wilayah perkotaan memiliki suhu lebih tinggi daripada daerah di sekitarnya.
+
+Salah satu penyebabnya adalah banyaknya permukaan seperti aspal dan beton. Bahan tersebut menyerap dan menyimpan panas matahari, kemudian melepaskannya kembali ke lingkungan. Gedung yang rapat juga dapat mengurangi pergerakan udara di beberapa kawasan. Sebaliknya, pepohonan membantu memberikan keteduhan dan melalui proses penguapan air dari daun dapat membantu menurunkan suhu di sekitarnya.
+
+Jika kawasan hijau semakin berkurang, suhu lingkungan dapat menjadi semakin tinggi. Kondisi tersebut dapat membuat penggunaan pendingin ruangan meningkat. Peningkatan penggunaan energi kemudian dapat menambah beban lingkungan.
+
+Karena itu, penambahan ruang terbuka hijau, penanaman pohon, dan penggunaan permukaan yang tidak terlalu menyerap panas dapat menjadi bagian dari upaya mengurangi dampak pulau panas perkotaan.`,
+
+      p7: `JEJAK DI BUKIT
+Raka dan Bima mendaki Bukit Lembayung pada Minggu pagi. Mereka membawa peta sederhana dan bekal secukupnya. Langit yang semula cerah berubah mendung ketika mereka hampir mencapai puncak.
+
+“Menurut petanya, jalur ini menuju puncak,” kata Raka sambil menunjuk jalan sempit di antara pepohonan.
+
+Mereka terus berjalan. Angin menderu di antara pepohonan, sementara kabut perlahan menutup jalan di depan mereka. Bima mulai ragu. Ia mengusulkan agar mereka kembali sebelum hujan turun, tetapi Raka ingin mencari jalan lain.
+
+Tidak lama kemudian, terdengar suara ranting patah dari balik semak. Mereka berhenti. Setelah beberapa saat, seekor rusa muncul dan berlari menyeberangi jalan. Keduanya menghela napas lega.
+
+Menyadari cuaca semakin buruk, Raka akhirnya setuju kembali. Mereka mengikuti tanda pita yang sebelumnya dipasang pada beberapa batang pohon. Setelah perjalanan cukup lama, mereka menemukan jalan awal dan tiba sebelum hujan turun deras.`,
+
+      p8: `MENIKMATI PESONA DESA WISATA CIBIRU
+Desa Wisata Cibiru menawarkan pengalaman wisata yang memadukan pemandangan alam dengan kehidupan masyarakat setempat. Pengunjung dapat menyusuri jalan di antara kebun, menikmati udara sejuk, serta melihat aktivitas warga yang masih mempertahankan beberapa tradisi lokal.
+
+Salah satu daya tarik desa ini adalah jalur berjalan kaki yang melewati kebun dan area persawahan. Pengunjung juga dapat mengikuti kegiatan membuat kerajinan sederhana bersama warga. Pengalaman tersebut membuat wisatawan tidak hanya menikmati pemandangan, tetapi juga mengenal kehidupan masyarakat.
+
+Fasilitas di desa wisata ini cukup sederhana. Beberapa bagian jalan masih berupa jalan tanah sehingga menjadi licin ketika hujan. Meskipun demikian, suasana alami menjadi kelebihan yang membuat tempat ini berbeda dari kawasan wisata yang lebih ramai.
+
+Secara keseluruhan, Desa Wisata Cibiru menarik bagi pengunjung yang ingin menikmati suasana alam sekaligus mengenal kehidupan masyarakat setempat. Pengelola perlu memperhatikan kondisi beberapa fasilitas agar kenyamanan pengunjung dapat terus ditingkatkan.`,
+
+      p9: `ANGKLUNG, BUNYI DARI TANAH SUNDA
+Angklung merupakan alat musik tradisional yang terbuat dari bambu dan berkembang dalam kehidupan masyarakat Sunda. Alat musik ini dimainkan dengan cara digoyangkan sehingga menghasilkan bunyi dari getaran tabung-tabung bambu.
+
+Setiap angklung memiliki ukuran dan susunan bambu tertentu yang menghasilkan nada berbeda. Dalam sebuah pertunjukan, beberapa pemain biasanya memainkan angklung secara bersama-sama. Setiap pemain bertugas menghasilkan nada tertentu sehingga keseluruhan bunyi membentuk rangkaian musik.
+
+Selain sebagai alat musik, angklung memiliki nilai budaya bagi masyarakat Sunda. Permainan angklung mengajarkan kerja sama karena setiap pemain perlu memperhatikan waktu dan nada yang dimainkan. Saat ini, angklung juga dipentaskan dalam berbagai kegiatan budaya dan pendidikan.
+
+Keberadaan angklung menunjukkan bahwa alat musik tradisional dapat tetap hidup apabila dipelajari dan dimainkan oleh generasi berikutnya. Oleh karena itu, pengenalan angklung di lingkungan pendidikan dapat menjadi salah satu cara untuk menjaga keberlangsungannya.`,
+
+      p10: `KANCIL DAN MATA AIR HUTAN
+Pada musim kemarau, sebuah mata air menjadi satu-satunya sumber air bagi hewan-hewan di hutan. Kancil mengetahui bahwa persediaan air semakin sedikit. Ia mengajak hewan lain menggunakan air secukupnya, tetapi sebagian hewan tidak menghiraukannya.
+
+Suatu sore, Kancil melihat seekor Burung Pipit membawa daun kering ke dekat mata air. Ternyata Pipit sedang membuat penutup kecil agar air tidak cepat menguap. Kancil kagum melihat usaha Pipit. Ia kemudian mengajak hewan lain membuat beberapa penutup dari daun dan ranting.
+
+Awalnya para hewan menganggap pekerjaan itu merepotkan. Namun, setelah melihat permukaan mata air tidak cepat menyusut, mereka mulai ikut membantu. Mereka juga sepakat mengambil air sesuai kebutuhan.
+
+Beberapa hari kemudian, hujan turun. Mata air kembali penuh. Para hewan menyadari bahwa menjaga sumber air tidak harus menunggu keadaan menjadi sulit. Sejak saat itu, mereka bersama-sama merawat mata air dan tidak lagi mengambil air secara berlebihan.`
+    };
+
+    const questions = [
+      {
+        id: 1, passage: 'p1',
+        q: "Informasi yang disampaikan oleh pihak yang mendukung membawa bekal dalam teks tersebut adalah ....",
+        opts: [
+          "Bekal dari rumah memungkinkan kandungan makanan disesuaikan dengan kebutuhan siswa.",
+          "Bekal dari rumah membuat siswa tidak perlu memilih makanan ketika berada di sekolah.",
+          "Bekal dari rumah menjamin siswa selalu memperoleh makanan dengan jumlah yang sesuai.",
+          "Bekal dari rumah membantu keluarga menghemat seluruh pengeluaran makanan setiap hari."
+        ],
+        key: 0,
+        expl: "A benar, karena pihak pendukung menyatakan makanan dari rumah dapat dipilih dan disiapkan sesuai kebutuhan gizi. B salah, karena teks tidak menyatakan bahwa membawa bekal membuat siswa tidak perlu memilih makanan. C salah, karena teks hanya menyatakan makanan dapat diatur, bukan menjamin jumlahnya selalu sesuai. D salah, karena penghematan pengeluaran tidak dibahas dalam argumen pihak pendukung."
+      },
+      {
+        id: 2, passage: 'p1',
+        q: "Gagasan yang mendukung argumen pihak yang tidak mewajibkan siswa membawa bekal adalah ....",
+        opts: [
+          "Kemampuan memilih makanan sehat dapat lebih penting daripada tempat makanan disiapkan.",
+          "Pengaturan kandungan makanan dapat membantu siswa memenuhi kebutuhan gizi hariannya.",
+          "Penyediaan makanan bersih di sekolah dapat membantu siswa memperoleh makanan yang sesuai.",
+          "Pengurangan gula, garam, dan minyak dapat membantu siswa memilih makanan yang lebih sehat."
+        ],
+        key: 0,
+        expl: "A benar, karena gagasan tersebut menjadi dasar pihak yang tidak menganggap bekal sebagai keharusan. B, C, dan D merupakan gagasan yang lebih mendukung alasan pihak yang membawa bekal atau mendukung pola makan sehat secara umum, bukan inti argumen pihak kontra."
+      },
+      {
+        id: 3, passage: 'p1',
+        q: "Kalimat yang paling tepat digunakan untuk menyampaikan argumen dalam teks diskusi tersebut adalah ....",
+        opts: [
+          "Membawa bekal dapat menjadi pilihan sehat apabila makanan yang disiapkan sesuai kebutuhan.",
+          "Membawa bekal jelas menjadi cara terbaik agar semua siswa memperoleh makanan sehat.",
+          "Membeli makanan di sekolah tentu membuat siswa lebih mudah memilih makanan yang dibutuhkan.",
+          "Siswa yang membawa bekal pasti memiliki pola makan yang lebih sehat daripada siswa lainnya."
+        ],
+        key: 0,
+        expl: "Kalimat A paling tepat karena menyampaikan pendapat secara proporsional dan tidak mutlak. Pernyataan tersebut menggunakan kata dapat dan memberikan kondisi yang mendukung argumennya. B salah karena mutlak, C salah karena kata tentu tidak didukung teks, D salah karena menggeneralisasi."
+      },
+      {
+        id: 4, passage: 'p2',
+        q: "Dalam teks tersebut terdapat istilah “fotosintesis”. Makna istilah tersebut adalah ....",
+        opts: [
+          "proses tumbuhan menghasilkan makanan dengan memanfaatkan cahaya matahari",
+          "proses tumbuhan memperoleh unsur hara dari organisme yang berada di sekitarnya",
+          "proses tumbuhan menarik organisme tertentu melalui aroma yang dikeluarkan bagian tubuhnya",
+          "proses tumbuhan menguraikan organisme yang terperangkap di dalam bagian tubuhnya"
+        ],
+        key: 0,
+        expl: "A benar, sesuai makna ilmiah dan konteks istilah fotosintesis pada kalimat teks. B, C, dan D merupakan adaptasi khusus kantong semar, bukan fotosintesis."
+      },
+      {
+        id: 5, passage: 'p2',
+        q: "Bagaimana fungsi gagasan pada paragraf ketiga dalam mendukung gagasan pada paragraf kedua?",
+        opts: [
+          "Mengembangkan informasi dengan menjelaskan keunikan cara kantong semar memperoleh unsur hara.",
+          "Memperluas informasi dengan menggambarkan lingkungan tempat kantong semar dapat tumbuh.",
+          "Memperkuat informasi dengan menguraikan bentuk bagian tubuh kantong semar secara lebih terperinci.",
+          "Melanjutkan informasi dengan menjelaskan proses tumbuhan melakukan fotosintesis dalam lingkungan tertentu."
+        ],
+        key: 0,
+        expl: "Paragraf kedua membahas cara kantong semar menangkap dan menguraikan serangga, sedangkan paragraf ketiga mengembangkan informasi tersebut dengan menjelaskan bahwa kemampuan tersebut membuat kantong semar memperoleh sebagian unsur hara dari organisme yang terperangkap."
+      },
+      {
+        id: 6, passage: 'p2',
+        q: "Jika lingkungan tempat tumbuh kantong semar memiliki kandungan unsur hara yang semakin rendah, kondisi yang paling mungkin terjadi berdasarkan teks adalah ....",
+        opts: [
+          "Kemampuan menangkap organisme dapat semakin berperan dalam membantu memenuhi kebutuhan unsur haranya.",
+          "Kemampuan melakukan fotosintesis dapat semakin berkurang karena tumbuhan memperoleh unsur hara tambahan.",
+          "Kemampuan menghasilkan aroma dapat semakin meningkat karena serangga menjadi sumber makanan utamanya.",
+          "Kemampuan membentuk kantong dapat semakin berkurang karena tumbuhan tidak memperoleh cukup cahaya matahari."
+        ],
+        key: 0,
+        expl: "A benar, karena semakin rendah unsur hara di lingkungan, kemampuan memperoleh tambahan unsur hara melalui organisme yang terperangkap menjadi semakin berkaitan dengan kemampuan bertahan tumbuhan."
+      },
+      {
+        id: 7, passage: 'p3',
+        q: "Berdasarkan teks, fungsi mode hemat baterai pada ponsel adalah ....",
+        opts: [
+          "Membatasi aktivitas tertentu untuk mengurangi penggunaan daya perangkat.",
+          "Mengatur aplikasi agar dapat berjalan lebih cepat ketika digunakan pengguna.",
+          "Meningkatkan kecerahan layar agar informasi lebih mudah dibaca pengguna.",
+          "Mempercepat sinkronisasi data agar pembaruan berlangsung secara otomatis."
+        ],
+        key: 0,
+        expl: "A benar, teks menyebutkan fitur ini membatasi beberapa aktivitas perangkat sehingga penggunaan daya dapat dikurangi."
+      },
+      {
+        id: 8, passage: 'p3',
+        q: "Apa dampak yang paling mungkin terjadi apabila langkah memilih menu “Baterai” dilewati?",
+        opts: [
+          "Pengguna tidak dapat menemukan pengaturan untuk mengaktifkan fitur tersebut.",
+          "Pengguna tidak dapat membuka layar utama perangkat setelah menekan tombol.",
+          "Pengguna tidak dapat mengubah tingkat kecerahan layar secara langsung.",
+          "Pengguna tidak dapat menggunakan aplikasi lain selama perangkat menyala."
+        ],
+        key: 0,
+        expl: "Langkah memilih Baterai diperlukan untuk menemukan pilihan Mode Hemat Baterai. Jika langkah tersebut dilewati, pengguna tidak sampai pada menu yang menyediakan fitur tersebut."
+      },
+      {
+        id: 9, passage: 'p3',
+        q: "Pernyataan yang paling tepat untuk menilai kemudahan prosedur tersebut bagi pengguna ponsel adalah ....",
+        opts: [
+          "Langkahnya cukup mudah karena menu yang digunakan tersedia dalam pengaturan perangkat.",
+          "Langkahnya sangat sulit karena pengguna harus membuka beberapa aplikasi sekaligus.",
+          "Langkahnya kurang praktis karena fitur hanya dapat digunakan ketika baterai benar-benar habis.",
+          "Langkahnya tidak dapat diterapkan karena setiap ponsel memiliki pengaturan yang sama sekali berbeda."
+        ],
+        key: 0,
+        expl: "A benar, karena langkah-langkahnya sederhana dan menu tersedia langsung di dalam menu Pengaturan perangkat."
+      },
+      {
+        id: 10, passage: 'p4',
+        q: "Istilah khusus yang digunakan dalam teks untuk menyebut teknologi yang menampilkan bentuk bunga di jalan adalah ....",
+        opts: [
+          "Hologram",
+          "Chronoband",
+          "Lumera",
+          "Sirene"
+        ],
+        key: 0,
+        expl: "Teks secara langsung menyebut bahwa jalan diterangi hologram berbentuk bunga."
+      },
+      {
+        id: 11, passage: 'p4',
+        q: "Fungsi penggunaan citraan pada bagian “terdengar suara mesin berdengung semakin keras” adalah ....",
+        opts: [
+          "Membantu pembaca membayangkan suasana yang semakin menegangkan.",
+          "Membantu pembaca memahami bentuk mesin yang digunakan di kota tersebut.",
+          "Membantu pembaca mengetahui ukuran ruang inti yang berada dalam menara.",
+          "Membantu pembaca membandingkan teknologi Lumera dengan teknologi masa kini."
+        ],
+        key: 0,
+        expl: "Citraan pendengaran melalui kata “terdengar” dan “berdengung” membuat pembaca seolah-olah mendengar suara mesin. Dalam konteks cerita, suara yang semakin keras memperkuat suasana tegang."
+      },
+      {
+        id: 12, passage: 'p4',
+        q: "Alasan yang paling mungkin membuat pembaca merasa tegang ketika membaca bagian akhir cerita adalah ....",
+        opts: [
+          "Nara harus menggunakan kemampuannya dalam situasi yang menentukan keselamatan kota.",
+          "Nara menemukan sebuah kota baru yang memiliki teknologi berbeda dari dunia asalnya.",
+          "Nara membawa gelang pemberian Arka ketika kembali menuju dunia asalnya.",
+          "Nara melihat gedung dan kendaraan yang memiliki bentuk berbeda dari biasanya."
+        ],
+        key: 0,
+        expl: "Ketegangan muncul karena Nara harus menggunakan Chronoband dalam situasi genting untuk membantu memperbaiki inti energi kota."
+      },
+      {
+        id: 13, passage: 'p5',
+        q: "Tujuan kegiatan sosial yang diikuti Dita adalah ....",
+        opts: [
+          "Memberikan pendampingan belajar kepada anak-anak di sekitar kampung.",
+          "Mengajarkan kegiatan menggambar kepada anak-anak di rumah baca.",
+          "Mengadakan permainan bersama anak-anak selama akhir pekan berlangsung.",
+          "Mengembangkan kemampuan bekerja sama bagi anggota komunitas sekolah."
+        ],
+        key: 0,
+        expl: "Disebutkan dalam teks: 'membantu anak-anak di sekitar kampung mendapatkan pendampingan belajar'."
+      },
+      {
+        id: 14, passage: 'p5',
+        q: "Objek kegiatan sosial yang dilakukan Dita berdasarkan kosakata dalam e-mail adalah ....",
+        opts: [
+          "Kegiatan pendampingan belajar di sebuah rumah baca.",
+          "Kegiatan pelatihan seni di lingkungan komunitas sekolah.",
+          "Kegiatan permainan edukatif di sekitar lingkungan kampung.",
+          "Kegiatan membaca mandiri di sebuah perpustakaan sekolah."
+        ],
+        key: 0,
+        expl: "Kegiatan secara spesifik berlokasi dan berfokus pada pendampingan belajar di Rumah Baca Pelita."
+      },
+      {
+        id: 15, passage: 'p5',
+        q: "Pesan yang ingin disampaikan Dita melalui e-mail tersebut adalah ....",
+        opts: [
+          "Kepedulian kepada orang lain dapat diwujudkan melalui kegiatan sederhana.",
+          "Kegiatan sosial sebaiknya hanya dilakukan oleh komunitas sekolah.",
+          "Pengalaman mengajar akan membuat seseorang mampu membaca lebih baik.",
+          "Rumah baca merupakan tempat yang tepat untuk mengadakan kegiatan sekolah."
+        ],
+        key: 0,
+        expl: "Dita menyimpulkan: 'Aku juga belajar bahwa membantu orang lain tidak selalu harus dilakukan dengan hal besar' -> peduli melalui kegiatan sederhana."
+      },
+      {
+        id: 16, passage: 'p6',
+        q: "Hubungan antara fakta bahwa aspal dan beton menyerap panas dengan penjelasan ilmiah dalam teks adalah ....",
+        opts: [
+          "Penyerapan panas membuat permukaan tersebut menyimpan energi sebelum melepaskannya kembali.",
+          "Penyerapan panas membuat permukaan tersebut menghasilkan udara sejuk bagi lingkungan sekitar.",
+          "Penyerapan panas membuat permukaan tersebut mempercepat pertumbuhan tanaman di perkotaan.",
+          "Penyerapan panas membuat permukaan tersebut meningkatkan pergerakan udara di antara gedung."
+        ],
+        key: 0,
+        expl: "Teks menjelaskan bahwa aspal dan beton menyerap serta menyimpan panas matahari, kemudian melepaskannya kembali ke lingkungan."
+      },
+      {
+        id: 17, passage: 'p6',
+        q: "Jika ruang terbuka hijau di suatu kota terus berkurang, dampak yang paling mungkin terjadi berdasarkan teks adalah ....",
+        opts: [
+          "Suhu lingkungan meningkat sehingga kebutuhan penggunaan pendingin ruangan dapat bertambah.",
+          "Suhu lingkungan menurun sehingga kebutuhan penggunaan pendingin ruangan dapat berkurang.",
+          "Pergerakan udara meningkat sehingga permukaan bangunan lebih cepat kehilangan panas.",
+          "Penyerapan air meningkat sehingga kawasan perkotaan menjadi semakin banyak ditumbuhi tanaman."
+        ],
+        key: 0,
+        expl: "Teks menyatakan: 'Jika kawasan hijau semakin berkurang, suhu lingkungan dapat menjadi semakin tinggi. Kondisi tersebut dapat membuat penggunaan pendingin ruangan meningkat.'"
+      },
+      {
+        id: 18, passage: 'p6',
+        q: "Pendapat berikut yang paling sesuai dengan informasi dalam teks adalah ....",
+        opts: [
+          "Penambahan ruang hijau dapat menjadi salah satu langkah untuk mengurangi panas perkotaan.",
+          "Penambahan bangunan dapat menjadi salah satu langkah untuk mengurangi panas perkotaan.",
+          "Pengurangan pepohonan dapat menjadi salah satu langkah untuk memperbaiki suhu perkotaan.",
+          "Penggunaan permukaan penyerap panas dapat menjadi salah satu langkah mengurangi suhu perkotaan."
+        ],
+        key: 0,
+        expl: "Teks secara eksplisit menyebut penambahan ruang terbuka hijau dan penanaman pohon sebagai upaya mengurangi dampak pulau panas."
+      },
+      {
+        id: 19, passage: 'p7',
+        q: "Latar suasana yang tergambar melalui kalimat yang menceritakan angin menderu, kabut menutup jalan, serta Bima mulai ragu adalah ....",
+        opts: [
+          "Tegang dan mencekam",
+          "Tenang dan menyenangkan",
+          "Riang dan penuh kegembiraan",
+          "Hangat dan penuh keakraban"
+        ],
+        key: 0,
+        expl: "Kombinasi cuaca memburuk, kabut tebal, dan suara ranting patah memicu ketegangan dan suasana mencekam."
+      },
+      {
+        id: 20, passage: 'p7',
+        q: "Keterkaitan peristiwa dalam cerita tersebut yang paling tepat adalah ....",
+        opts: [
+          "Cuaca memburuk membuat Raka dan Bima mempertimbangkan keputusan untuk kembali.",
+          "Peta yang dibawa membuat Raka dan Bima memilih melanjutkan perjalanan tanpa pertimbangan.",
+          "Kemunculan rusa membuat Raka dan Bima memutuskan untuk mencari jalur baru menuju puncak.",
+          "Tanda pita pada pohon membuat Raka dan Bima mengubah tujuan perjalanan menuju tempat lain."
+        ],
+        key: 0,
+        expl: "Perubahan cuaca yang memburuk menjadi alasan utama kedua tokoh membatalkan niat melanjutkan pendakian dan memilih kembali."
+      },
+      {
+        id: 21, passage: 'p7',
+        q: "Peristiwa dalam cerita yang paling relevan dengan kehidupan sehari-hari adalah ....",
+        opts: [
+          "Mempertimbangkan keselamatan ketika kondisi perjalanan mulai berubah.",
+          "Mengikuti perjalanan dengan membawa peta menuju tempat yang belum dikenal.",
+          "Berhenti sejenak ketika mendengar suara dari balik semak di perjalanan.",
+          "Menggunakan tanda tertentu untuk mengenali jalan yang pernah dilalui."
+        ],
+        key: 0,
+        expl: "Pelajaran paling utama dan relevan dalam kehidupan sehari-hari adalah mengutamakan keselamatan saat situasi lingkungan mulai memburuk."
+      },
+      {
+        id: 22, passage: 'p8',
+        q: "Karakteristik Desa Wisata Cibiru yang diulas dalam teks adalah ....",
+        opts: [
+          "Memadukan pemandangan alam dengan kehidupan masyarakat setempat.",
+          "Menawarkan berbagai wahana modern dengan fasilitas yang sangat lengkap.",
+          "Menyediakan pusat perbelanjaan dengan beragam produk dari luar daerah.",
+          "Mengutamakan kegiatan rekreasi dalam ruangan dengan teknologi terkini."
+        ],
+        key: 0,
+        expl: "Paragraf pertama kalimat awal menyatakan bahwa desa tersebut menawarkan pengalaman wisata yang memadukan pemandangan alam dengan kehidupan masyarakat setempat."
+      },
+      {
+        id: 23, passage: 'p8',
+        q: "Ide pokok yang paling tepat untuk teks ulasan tersebut adalah ....",
+        opts: [
+          "Desa Wisata Cibiru menawarkan wisata alam dan budaya dengan beberapa fasilitas yang perlu diperbaiki.",
+          "Desa Wisata Cibiru memiliki jalan tanah yang menjadi kendala utama bagi seluruh pengunjung.",
+          "Desa Wisata Cibiru menyediakan kegiatan kerajinan sebagai satu-satunya daya tarik bagi wisatawan.",
+          "Desa Wisata Cibiru menjadi tempat wisata yang lebih ramai dibandingkan kawasan wisata lainnya."
+        ],
+        key: 0,
+        expl: "Ulasan merangkum daya tarik perpaduan alam & budaya lokal, serta menyertakan catatan bahwa fasilitas jalan/pengelolaan masih perlu peningkatan."
+      },
+      {
+        id: 24, passage: 'p8',
+        q: "Hubungan informasi pada paragraf terakhir dengan informasi sebelumnya adalah ....",
+        opts: [
+          "Paragraf terakhir merangkum kelebihan objek sekaligus memberikan saran berdasarkan kekurangannya.",
+          "Paragraf terakhir memperkenalkan objek baru yang belum dibahas pada bagian sebelumnya.",
+          "Paragraf terakhir menjelaskan penyebab munculnya tradisi masyarakat yang terdapat pada objek wisata.",
+          "Paragraf terakhir membandingkan objek wisata dengan beberapa tempat lain di daerah tersebut."
+        ],
+        key: 0,
+        expl: "Paragraf terakhir menyimpulkan keseluruhan daya tarik desa wisata sekaligus memberikan rekomendasi/saran perbaikan fasilitas pengelola."
+      },
+      {
+        id: 25, passage: 'p9',
+        q: "Bagan informasi yang paling sesuai dengan isi teks tersebut adalah ....",
+        opts: [
+          "Angklung → bahan dan cara memainkan → peran pemain → nilai budaya → keberlangsungan",
+          "Angklung → sejarah penciptaan → tokoh pengembang → tempat pertunjukan → perubahan bentuk",
+          "Angklung → jenis bambu → proses pembuatan → harga alat → perkembangan perdagangan",
+          "Angklung → daerah pertunjukan → jumlah pemain → jenis lagu → perkembangan teknologi"
+        ],
+        key: 0,
+        expl: "Urutan paragraf membahas bahan dan cara main (par. 1), formasi & tugas pemain (par. 2), nilai budaya (par. 3), dan keberlangsungan melalui edukasi (par. 4)."
+      },
+      {
+        id: 26, passage: 'p9',
+        q: "Jika pengenalan angklung di lingkungan pendidikan terus dilakukan, perkembangan yang paling mungkin terjadi adalah ....",
+        opts: [
+          "Generasi berikutnya semakin mengenal dan berkesempatan melestarikan angklung.",
+          "Angklung semakin jarang dimainkan karena penggunaannya terbatas pada kegiatan pendidikan.",
+          "Angklung berubah menjadi alat musik modern karena sering digunakan oleh generasi muda.",
+          "Angklung kehilangan nilai budaya karena dimainkan secara bersama-sama dalam pendidikan."
+        ],
+        key: 0,
+        expl: "Paragraf terakhir menggarisbawahi bahwa pengenalan di bidang pendidikan menjaga keberlangsungan hidup alat musik tersebut di generasi muda."
+      },
+      {
+        id: 27, passage: 'p9',
+        q: "Penggunaan istilah “nada” dalam teks efektif untuk mendukung kejelasan informasi karena ....",
+        opts: [
+          "Istilah tersebut memperjelas unsur bunyi yang dihasilkan oleh setiap angklung.",
+          "Istilah tersebut memperjelas bahan utama yang digunakan untuk membuat angklung.",
+          "Istilah tersebut memperjelas cara masyarakat Sunda mempertahankan tradisi angklung.",
+          "Istilah tersebut memperjelas bentuk tabung bambu yang digunakan dalam pertunjukan."
+        ],
+        key: 0,
+        expl: "Istilah nada merujuk langsung pada perbedaan tinggi-rendah bunyi yang dikeluarkan tabung bambu berukuran tertentu."
+      },
+      {
+        id: 28, passage: 'p10',
+        q: "Urutan peristiwa yang tepat berdasarkan dongeng tersebut adalah ....",
+        opts: [
+          "Kemarau → air berkurang → Pipit membuat penutup → hewan bekerja sama → hujan turun",
+          "Pipit membuat penutup → kemarau datang → air berkurang → hujan turun → hewan bekerja sama",
+          "Hewan bekerja sama → air berkurang → hujan turun → Pipit membuat penutup → kemarau datang",
+          "Hujan turun → air berkurang → kemarau datang → hewan bekerja sama → Pipit membuat penutup"
+        ],
+        key: 0,
+        expl: "Alur dongeng bergerak runtut mulai dari kemarau panjang, persediaan air menipis, inisiatif burung pipit, kerja sama seluruh hewan, hingga akhirnya hujan tiba."
+      },
+      {
+        id: 29, passage: 'p10',
+        q: "Karakter Kancil yang paling tepat berdasarkan perilakunya dalam cerita adalah ....",
+        opts: [
+          "Peduli dan mampu mengajak hewan lain menyelesaikan masalah bersama.",
+          "Berani dan selalu mengambil keputusan tanpa mempertimbangkan keadaan sekitar.",
+          "Cerdik dan lebih memilih menyelesaikan persoalan tanpa bantuan hewan lain.",
+          "Tegas dan berusaha mengatur semua hewan agar mengikuti keinginannya."
+        ],
+        key: 0,
+        expl: "Kancil peduli pada krisis air dan tidak bertindak egois, melainkan menggerakkan hewan-hewan lain untuk bergotong royong menjaga mata air."
+      },
+      {
+        id: 30, passage: 'p10',
+        q: "Fungsi penggunaan bahasa kias dalam ungkapan “tidak harus menunggu keadaan menjadi sulit” adalah ....",
+        opts: [
+          "Menegaskan pentingnya melakukan tindakan sebelum masalah menjadi semakin besar.",
+          "Menggambarkan perubahan keadaan hutan setelah musim hujan berlangsung cukup lama.",
+          "Menunjukkan perasaan hewan yang merasa khawatir terhadap datangnya musim kemarau.",
+          "Menggambarkan kesulitan hewan dalam menemukan sumber air baru di dalam hutan."
+        ],
+        key: 0,
+        expl: "Ungkapan tersebut bermakna preventif: mengajak bertindak proaktif menjaga sumber daya sebelum terjadi musibah atau krisis yang lebih parah."
+      }
+    ];
+
+    // STATE APLIKASI
+    let currentIndex = 0;
+    const userAnswers = {};
+    const secretCode = "guru123"; // Kata Sandi Kunci Pembahasan
+
+    // Inisialisasi
+    window.onload = function() {
+      renderPalette();
+      loadQuestion(0);
+      renderSolutions();
+      startTimer(60 * 60);
+    };
+
+    function renderPalette() {
+      const palette = document.getElementById("number-palette");
+      palette.innerHTML = "";
+      questions.forEach((q, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "num-btn";
+        btn.id = `palette-${idx}`;
+        btn.textContent = idx + 1;
+        btn.onclick = () => loadQuestion(idx);
+        palette.appendChild(btn);
+      });
+    }
+
+    function loadQuestion(idx) {
+      currentIndex = idx;
+      const q = questions[idx];
+      
+      // Update Wacana
+      const readingArea = document.getElementById("reading-area");
+      readingArea.textContent = passages[q.passage] || "";
+
+      // Update Teks Soal
+      document.getElementById("q-text").textContent = `Soal ${idx + 1}: ${q.q}`;
+
+      // Update Pilihan Jawaban
+      const optContainer = document.getElementById("q-options");
+      optContainer.innerHTML = "";
+      const optLabels = ['A', 'B', 'C', 'D'];
+
+      q.opts.forEach((opt, optIdx) => {
+        const label = document.createElement("label");
+        label.className = "option-label";
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = `opt-${idx}`;
+        input.value = optIdx;
+        if (userAnswers[idx] === optIdx) input.checked = true;
+
+        input.onchange = () => {
+          userAnswers[idx] = optIdx;
+          updatePaletteStatus();
+        };
+
+        const span = document.createElement("span");
+        span.textContent = `${optLabels[optIdx]}. ${opt}`;
+
+        label.appendChild(input);
+        label.appendChild(span);
+        optContainer.appendChild(label);
+      });
+
+      // Update Button State
+      document.getElementById("prev-btn").disabled = (idx === 0);
+      document.getElementById("next-btn").textContent = (idx === questions.length - 1) ? "Selesai" : "Berikutnya";
+
+      updatePaletteStatus();
+    }
+
+    function updatePaletteStatus() {
+      questions.forEach((_, idx) => {
+        const btn = document.getElementById(`palette-${idx}`);
+        btn.className = "num-btn";
+        if (userAnswers[idx] !== undefined) btn.classList.add("answered");
+        if (idx === currentIndex) btn.classList.add("current");
+      });
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0) loadQuestion(currentIndex - 1);
+    }
+
+    function nextQuestion() {
+      if (currentIndex < questions.length - 1) {
+        loadQuestion(currentIndex + 1);
+      } else {
+        submitExam();
+      }
+    }
+
+    function submitExam() {
+      let score = 0;
+      let answeredCount = 0;
+      questions.forEach((q, idx) => {
+        if (userAnswers[idx] !== undefined) {
+          answeredCount++;
+          if (userAnswers[idx] === q.key) score++;
+        }
+      });
+
+      const confirmSubmit = confirm(`Anda telah menjawab ${answeredCount} dari ${questions.length} soal.\nApakah Anda yakin ingin menyelesaikan ujian?`);
+      if (confirmSubmit) {
+        const total = questions.length;
+        const nilai = Math.round((score / total) * 100);
+        const resDiv = document.getElementById("score-result");
+        resDiv.innerHTML = `Skor Anda: <span style="color:var(--primary); font-size:20px;">${nilai}</span> / 100<br>(Benar: ${score} dari ${total} soal)`;
+        alert(`Ujian Selesai!\nNilai: ${nilai}\nBenar: ${score}/${total}`);
+      }
+    }
+
+    // Tab Switching
+    function switchTab(tab) {
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+
+      if (tab === 'exam') {
+        event.target.classList.add("active");
+        document.getElementById("exam-tab").classList.add("active");
+      } else {
+        event.target.classList.add("active");
+        document.getElementById("solutions-tab").classList.add("active");
+      }
+    }
+
+    // Password Lock System
+    function unlockSolutions() {
+      const pass = document.getElementById("pass-input").value;
+      const msg = document.getElementById("lock-msg");
+      if (pass === secretCode) {
+        document.getElementById("lock-screen").style.display = "none";
+        document.getElementById("unlocked-screen").style.display = "block";
+        msg.textContent = "";
+      } else {
+        msg.textContent = "Kata sandi salah! Hubungi guru/pengawas.";
+      }
+    }
+
+    function lockAgain() {
+      document.getElementById("pass-input").value = "";
+      document.getElementById("lock-screen").style.display = "block";
+      document.getElementById("unlocked-screen").style.display = "none";
+    }
+
+    function renderSolutions() {
+      const list = document.getElementById("solutions-list");
+      const optLabels = ['A', 'B', 'C', 'D'];
+      list.innerHTML = "";
+
+      questions.forEach((q, idx) => {
+        const item = document.createElement("div");
+        item.className = "expl-item";
+        item.innerHTML = `
+          <p><strong>Soal ${idx + 1}:</strong> ${q.q}</p>
+          <p style="margin: 6px 0;">Kunci Jawaban: <span class="badge-key">${optLabels[q.key]}</span></p>
+          <p style="font-size: 14px; color: #475569;"><strong>Pembahasan:</strong> ${q.expl}</p>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    // Timer Sederhana
+    function startTimer(duration) {
+      let timer = duration;
+      const display = document.getElementById('timer');
+      const interval = setInterval(function () {
+        let minutes = parseInt(timer / 60, 10);
+        let seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = `Waktu: ${minutes}:${seconds}`;
+
+        if (--timer < 0) {
+          clearInterval(interval);
+          alert("Waktu habis!");
+          submitExam();
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
