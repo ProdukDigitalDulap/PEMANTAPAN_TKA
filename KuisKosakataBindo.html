@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena TKA Bahasa Indonesia - 200 Kosakata Berjenjang (Zero Repetition)</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --easy: #10b981;
+            --medium: #f59e0b;
+            --hard: #ef4444;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 940px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .top-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .audio-toggle-btn {
+            background: #334155;
+            color: #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 1px solid #475569;
+        }
+
+        .start-screen {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+        }
+
+        .start-screen h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pool-tracker-box {
+            background: #090d16;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .pool-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 600px;
+            margin: 10px auto;
+        }
+
+        select, input[type="text"] {
+            background: #0f172a;
+            border: 1.5px solid var(--border);
+            color: white;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        select:focus, input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .arena-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 8px;
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .stat-value {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .stage-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            align-self: center;
+        }
+
+        .stage-easy { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+        .stage-medium { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+        .stage-hard { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+
+        .lifelines-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-lifeline {
+            background: #1e1b4b;
+            color: #c7d2fe;
+            border: 1px solid #4338ca;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-lifeline:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .card-arena {
+            background: #090d16;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 30px 20px;
+            min-height: 240px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.6);
+        }
+
+        .card-arena.shake {
+            animation: cardShake 0.4s ease-in-out;
+        }
+
+        @keyframes cardShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .word-main {
+            font-size: 2.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #60a5fa;
+            text-transform: uppercase;
+            margin: 12px 0;
+            text-shadow: 0 0 20px rgba(96, 165, 250, 0.35);
+        }
+
+        .category-pill {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #334155;
+            color: #93c5fd;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .clue-box {
+            display: none;
+            background: #1e1b4b;
+            border: 1px dashed #818cf8;
+            color: #c7d2fe;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .answer-panel {
+            display: none;
+            margin-top: 15px;
+            background: #172554;
+            border-left: 4px solid #60a5fa;
+            border-radius: 8px;
+            padding: 14px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .answer-panel h4 {
+            color: #93c5fd;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .answer-panel p {
+            color: #e2e8f0;
+            font-size: 0.92rem;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .controls-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .teacher-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        button {
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            font-size: 1.05rem;
+            padding: 14px 26px;
+        }
+
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
+        .btn-reveal { background: #0284c7; color: white; }
+        .btn-correct { background: var(--success); color: white; }
+        .btn-wrong { background: var(--danger); color: white; }
+        .btn-end { background: #334155; color: #cbd5e1; }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .badge-title {
+            display: inline-block;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #111827;
+            font-weight: 900;
+            font-size: 1.1rem;
+            padding: 8px 18px;
+            border-radius: 30px;
+            margin: 12px 0;
+        }
+
+        .remedial-box {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .remedial-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .remedial-item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remedial-item.correct { background: rgba(22, 163, 74, 0.15); border-left: 4px solid var(--success); }
+        .remedial-item.wrong { background: rgba(220, 38, 38, 0.15); border-left: 4px solid var(--danger); }
+
+        .admin-section {
+            border-top: 1px solid var(--border);
+            padding-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+        }
+
+        th { background: #0f172a; color: var(--text-sub); }
+        tr:nth-child(even) { background: rgba(15, 23, 42, 0.4); }
+
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+            .word-main { font-size: 2.2rem; }
+            .teacher-actions { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="container">
+    <div class="top-status-bar">
+        <div style="font-weight: 700; font-size: 0.95rem; color: #94a3b8;">
+            🏛️ SMPN 28 BANDUNG &bull; MODUL KOSAKATA TKA (LEVELING 15 SOAL)
+        </div>
+        <button class="audio-toggle-btn" id="audio-toggle" onclick="toggleAudio()">🔊 Audio: ON</button>
+    </div>
+
+    <!-- Layar 1: Start Screen & Pool Tracking -->
+    <div class="start-screen" id="start-screen">
+        <h1>ARENA 200 KOSAKATA TKA</h1>
+        <p style="color: var(--text-sub); font-size: 0.92rem;">
+            Pengujian Lisan Berjenjang: <strong>5 Mudah &bull; 5 Sedang &bull; 5 Sulit</strong> (Zero-Repetition Tracking)
+        </p>
+
+        <!-- Zero-Repetition Inventory Tracker -->
+        <div class="pool-tracker-box">
+            <div class="pool-stat">
+                <span style="color: #34d399; font-weight: 800;" id="pool-easy-count">65 / 65</span>
+                <span style="font-size: 0.75rem; color: var(--text-sub);">Mudah Tersedia</span>
+            </div>
+            <div class="pool-stat">
+                <span style="color: #fbbf24; font-weight: 800;" id="pool-med-count">70 / 70</span>
+                <span style="font-size: 0.75rem; color: var(--text-sub);">Sedang Tersedia</span>
+            </div>
+            <div class="pool-stat">
+                <span style="color: #f87171; font-weight: 800;" id="pool-hard-count">65 / 65</span>
+                <span style="font-size: 0.75rem; color: var(--text-sub);">Sulit Tersedia</span>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <select id="input-class">
+                <option value="9H">Kelas 9H</option>
+                <option value="9I">Kelas 9I</option>
+                <option value="9J">Kelas 9J</option>
+            </select>
+
+            <select id="input-time">
+                <option value="25">Waktu: Standar (25 Detik / Soal)</option>
+                <option value="15">Waktu: Cepat (15 Detik / Soal)</option>
+                <option value="35">Waktu: Tenang (35 Detik / Soal)</option>
+            </select>
+
+            <input type="text" id="input-name" class="full-width" placeholder="Nama Lengkap Siswa / No. Presensi..." autocomplete="off">
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-start" onclick="startLevelingQuiz()">⚔️ Mulai Sesi Pengujian (15 Soal)</button>
+            <button style="background: #334155; color: #cbd5e1; font-size: 0.85rem;" onclick="resetPoolTracker()">🔄 Reset Bank Kosakata</button>
+        </div>
+    </div>
+
+    <!-- Layar 2: Arena Pengujian Lisan -->
+    <div id="quiz-area" style="display: none; flex-direction: column; gap: 15px;">
+        <div class="arena-header">
+            <div class="stat-item">
+                <span class="stat-label">Siswa</span>
+                <span class="stat-value" id="disp-student-name" style="font-size: 0.95rem; color: #60a5fa;">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Kelas</span>
+                <span class="stat-value" id="disp-student-class" style="color: #c084fc;">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Progres</span>
+                <span class="stat-value" id="disp-progress">1 / 15</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Waktu</span>
+                <span class="stat-value" id="disp-timer" style="color: #f59e0b;">25s</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Skor</span>
+                <span class="stat-value" id="disp-score" style="color: #4ade80;">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Streak</span>
+                <span class="stat-value" id="disp-streak" style="color: #fb923c;">0x</span>
+            </div>
+        </div>
+
+        <div id="stage-badge" class="stage-indicator stage-easy">
+            🌱 TAHAP 1: KOSAKATA MUDAH (SOAL 1 - 5)
+        </div>
+
+        <div class="lifelines-container">
+            <button class="btn-lifeline" id="ll-hint" onclick="useHintClue()">💡 Petunjuk Huruf (1x)</button>
+            <button class="btn-lifeline" id="ll-freeze" onclick="useFreezeTimer()">⏳ Tambah 15 Detik (1x)</button>
+            <button class="btn-lifeline" id="ll-skip" onclick="useSkipWord()">🔄 Tukar Kata (Satu Level) (1x)</button>
+        </div>
+
+        <div class="card-arena" id="card-arena">
+            <div class="category-pill" id="disp-category">KATEGORI</div>
+            <div class="clue-box" id="clue-box">Petunjuk: -</div>
+            <div class="word-main" id="disp-word">KOSAKATA</div>
+
+            <div class="answer-panel" id="answer-panel">
+                <h4>Definisi Resmi (KBBI):</h4>
+                <p id="disp-meaning">-</p>
+                <h4>Konteks Penggunaan Soal TKA:</h4>
+                <p id="disp-usage">-</p>
+            </div>
+        </div>
+
+        <div class="controls-grid">
+            <button class="btn-reveal" onclick="revealAnswer()">👁️ Buka Kunci Jawaban & Konteks Soal</button>
+            <div class="teacher-actions">
+                <button class="btn-wrong" onclick="submitJudgment(false)">❌ Salah / Lewat (0 Poin)</button>
+                <button class="btn-correct" onclick="submitJudgment(true)">✅ Jawaban Tepat (+ Poin Berbobot)</button>
+            </div>
+            <button class="btn-end" onclick="manualForceEnd()">🏁 Hentikan Sesi & Simpan Nilai</button>
+        </div>
+    </div>
+
+    <!-- Layar 3: Lembar Evaluasi & Predikat -->
+    <div class="completion-screen" id="completion-screen">
+        <h2 style="font-size: 1.8rem; font-weight: 800;">🏆 Sesi Selesai (15 Soal)!</h2>
+        <p style="color: var(--text-sub); margin-top: 4px;">Evaluasi lisan kosakata TKA: <strong id="res-student-name" style="color: white;"></strong> (<span id="res-student-class"></span>)</p>
+
+        <div>
+            <div class="badge-title" id="res-badge-title">GELAR PRESTASI</div>
+        </div>
+
+        <div style="font-size: 1.25rem; margin-bottom: 12px;">
+            Total Nilai: <strong id="res-score" style="color: #4ade80;">0</strong> Poin
+            <span style="font-size: 0.88rem; color: var(--text-sub);" id="res-details">(15 Soal Diuji)</span>
+        </div>
+
+        <div class="remedial-box">
+            <h4 style="color: #93c5fd; margin-bottom: 10px; font-size: 0.9rem;">📝 Rincian Penguasaan 15 Kata Berjenjang:</h4>
+            <ul class="remedial-list" id="remedial-list"></ul>
+        </div>
+
+        <button class="btn-start" onclick="resetToHome()">🔄 Uji Siswa Berikutnya</button>
+    </div>
+
+    <!-- Modul Admin: Rekap Nilai -->
+    <div class="admin-section">
+        <div class="filter-bar">
+            <div style="display: flex; gap: 8px;">
+                <select id="filter-class-recap" onchange="renderHistoryTable()" style="padding: 6px 10px; font-size: 0.85rem;">
+                    <option value="ALL">Semua Kelas</option>
+                    <option value="9H">Kelas 9H</option>
+                    <option value="9I">Kelas 9I</option>
+                    <option value="9J">Kelas 9J</option>
+                </select>
+                <input type="text" id="filter-search-recap" placeholder="Cari nama siswa..." oninput="renderHistoryTable()" style="padding: 6px 10px; font-size: 0.85rem;" />
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button style="background: #0284c7; color: white; padding: 6px 12px; font-size: 0.85rem;" onclick="exportToCSV()">📥 Ekspor CSV</button>
+                <button style="background: #dc2626; color: white; padding: 6px 12px; font-size: 0.85rem;" onclick="clearAllHistory()">🗑️ Hapus Nilai</button>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 35px;">No</th>
+                        <th>Kelas</th>
+                        <th>Nama Siswa</th>
+                        <th>Skor</th>
+                        <th>Predikat</th>
+                        <th>Benar / Total</th>
+                        <th>Waktu</th>
+                    </tr>
+                </thead>
+                <tbody id="history-tbody">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-sub);">Memuat riwayat evaluasi...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ==========================================================================
+       MODUL 1: BANK 200 KOSAKATA TKA DENGAN LEVELING KETAT
+       ========================================================================== */
+    const masterVocabulary = [
+        // ------------------ LEVEL EASY (65 KATA) ------------------
+        { id: 1, level: "EASY", word: "Sinonim", cat: "MAJAS", meaning: "Bentuk bahasa yang maknanya sama atau mirip dengan bentuk lain.", usage: "Menentukan padanan kata sepadan dalam kalimat." },
+        { id: 2, level: "EASY", word: "Antonim", cat: "MAJAS", meaning: "Kata yang berlawanan makna dengan kata lain.", usage: "Mencari lawan kata dalam teks deskripsi." },
+        { id: 3, level: "EASY", word: "Denotasi", cat: "MAJAS", meaning: "Makna kata yang sebenarnya atau makna kamus lugas.", usage: "Menentukan makna harfiah pada laporan sains." },
+        { id: 4, level: "EASY", word: "Konotasi", cat: "MAJAS", meaning: "Makna tambahan atau kiasan yang mengandung nilai rasa emosional.", usage: "Menganalisis nilai rasa positif/negatif diksi puisi." },
+        { id: 5, level: "EASY", word: "Personifikasi", cat: "MAJAS", meaning: "Majas yang mengumpamakan benda mati berwatak seperti insan bernyawa.", usage: "Menganalisis citraan gerak dan bayangan benda." },
+        { id: 6, level: "EASY", word: "Hiperbola", cat: "MAJAS", meaning: "Gaya bahasa berupa pernyataan berlebihan dari kenyataan yang ada.", usage: "Mengidentifikasi dramatisasi cerita." },
+        { id: 7, level: "EASY", word: "Amanat", cat: "STRUKTUR", meaning: "Pesan moral atau wejangan yang ingin disampaikan oleh pengarang.", usage: "Menyimpulkan nilai moral dalam cerpen." },
+        { id: 8, level: "EASY", word: "Alur", cat: "STRUKTUR", meaning: "Rangkaian jalinan peristiwa yang membentuk suatu kesatuan cerita.", usage: "Menganalisis jenis alur maju atau mundur." },
+        { id: 9, level: "EASY", word: "Latar", cat: "STRUKTUR", meaning: "Keterangan mengenai waktu, suasana, dan tempat terjadinya peristiwa.", usage: "Mengidentifikasi latar waktu dan tempat cerita." },
+        { id: 10, level: "EASY", word: "Tokoh", cat: "STRUKTUR", meaning: "Pelaku yang mengemban peristiwa dalam naskah drama atau prosa.", usage: "Menentukan tokoh utama dan peran pembantu." },
+        { id: 11, level: "EASY", word: "Watak", cat: "STRUKTUR", meaning: "Sifat batin yang membedakan satu tokoh dari tokoh lainnya.", usage: "Menganalisis perwatakan antagonis atau protagonis." },
+        { id: 12, level: "EASY", word: "Baku", cat: "SINTAKSIS", meaning: "Bentuk ejaan yang sah sesuai kaidah tata bahasa dan EYD.", usage: "Menyunting kata tidak baku dalam teks berita." },
+        { id: 13, level: "EASY", word: "Kalimat Efektif", cat: "SINTAKSIS", meaning: "Kalimat yang berhasil menyampaikan gagasan dengan ringkas dan jelas.", usage: "Mengefektifkan susunan kalimat ambigu." },
+        { id: 14, level: "EASY", word: "Konjungsi", cat: "SINTAKSIS", meaning: "Kata hubung penghubung antarkata, klausa, atau antarkalimat.", usage: "Melengkapi kalimat rumpang dengan kata hubung." },
+        { id: 15, level: "EASY", word: "Fakta", cat: "WACANA", meaning: "Keadaan yang merupakan kenyataan riil dan dapat dibuktikan kebenarannya.", usage: "Membedakan kalimat fakta dari opini." },
+        { id: 16, level: "EASY", word: "Opini", cat: "WACANA", meaning: "Pendapat, pikiran, atau pendirian perorangan yang belum pasti kebenarannya.", usage: "Menyaring pandangan subjektif redaksi." },
+        { id: 17, level: "EASY", word: "Objektif", cat: "WACANA", meaning: "Berdasarkan keadaan yang sebenarnya tanpa dipengaruhi pandangan pribadi.", usage: "Menilai kenetralan teks ulasan kritis." },
+        { id: 18, level: "EASY", word: "Subjektif", cat: "WACANA", meaning: "Mengenai atau menurut pandangan dan perasaan sendiri.", usage: "Menilai unsur bias pada artikel ulasan." },
+        { id: 19, level: "EASY", word: "Aktual", cat: "WACANA", meaning: "Betul-betul terjadi, baru saja berlangsung, dan sedang ramai dibicarakan.", usage: "Menilai unsur aktualitas berita utama." },
+        { id: 20, level: "EASY", word: "Faktual", cat: "WACANA", meaning: "Berdasarkan kenyataan nyata dan data empiris konkret.", usage: "Mengecek keabsahan data laporan observasi." },
+        { id: 21, level: "EASY", word: "Dialog", cat: "STRUKTUR", meaning: "Percakapan timbal balik terencana antardua tokoh atau lebih.", usage: "Menemukan konflik antartokoh dalam teks drama." },
+        { id: 22, level: "EASY", word: "Monolog", cat: "STRUKTUR", meaning: "Wacana tunggal atau percakapan dengan diri sendiri tanpa penutur lain.", usage: "Menganalisis batin tokoh melalui monolog." },
+        { id: 23, level: "EASY", word: "Deduktif", cat: "STRUKTUR", meaning: "Pola penyajian kalimat utama di awal paragraf diikuti penjelas.", usage: "Menentukan gagasan pokok pada awal paragraf." },
+        { id: 24, level: "EASY", word: "Induktif", cat: "STRUKTUR", meaning: "Pola penulisan perincian khusus di awal dan kesimpulan umum di akhir.", usage: "Menemukan ide utama pada akhir teks eksposisi." },
+        { id: 25, level: "EASY", word: "Prolog", cat: "STRUKTUR", meaning: "Bagian pembukaan naskah sebagai pengantar cerita.", usage: "Mengetahui orientasi pembuka drama." },
+        { id: 26, level: "EASY", word: "Epilog", cat: "STRUKTUR", meaning: "Bagian penutup naskah karya sastra yang merangkum akhir nasib tokoh.", usage: "Menyimpulkan penutupan cerita narasi." },
+        { id: 27, level: "EASY", word: "Subjek", cat: "SINTAKSIS", meaning: "Pokok kalimat yang melakukan tindakan atau menjadi fokus utama.", usage: "Memeriksa keutuhan struktur klausa baku." },
+        { id: 28, level: "EASY", word: "Predikat", cat: "SINTAKSIS", meaning: "Bagian kalimat yang menandai apa yang dinyatakan mengenai subjek.", usage: "Menentukan kejelasan tindakan kalimat efektif." },
+        { id: 29, level: "EASY", word: "Objek", cat: "SINTAKSIS", meaning: "Unsur kalimat yang menjadi sasaran langsung dari kata kerja transitif.", usage: "Menentukan pola dasar susunan SPOK." },
+        { id: 30, level: "EASY", word: "Keterangan", cat: "SINTAKSIS", meaning: "Bagian kalimat yang menerangkan waktu, tempat, tujuan, atau alat.", usage: "Menganalisis variasi keterangan posisi di awal kalimat." },
+        { id: 31, level: "EASY", word: "Persuasif", cat: "SINTAKSIS", meaning: "Sifat ajakan halus atau bujukan untuk meyakinkan pembaca.", usage: "Mengidentifikasi kalimat ajakan dalam iklan." },
+        { id: 32, level: "EASY", word: "Deskriptif", cat: "STRUKTUR", meaning: "Penggambaran objek secara terperinci sehingga pembaca seolah merasakannya.", usage: "Menganalisis teknik indrawi pada teks deskripsi." },
+        { id: 33, level: "EASY", word: "Naratif", cat: "STRUKTUR", meaning: "Bentuk karangan yang menceritakan urutan peristiwa secara runtut.", usage: "Memahami struktur cerita fantasi dan fabel." },
+        { id: 34, level: "EASY", word: "Eksposisi", cat: "STRUKTUR", meaning: "Teks yang memaparkan sejumlah informasi dan ilmu pengetahuan secara padat.", usage: "Menganalisis tesis dan argumen dalam teks eksposisi." },
+        { id: 35, level: "EASY", word: "Ringkasan", cat: "STRUKTUR", meaning: "Penyajian singkat dari karangan asli dengan mempertahankan urutan isi.", usage: "Merangkum poin utama paragraf panjang." },
+        { id: 36, level: "EASY", word: "Gagasan Pokok", cat: "STRUKTUR", meaning: "Pikiran utama yang menjadi dasar pengembangan sebuah paragraf.", usage: "Menjawab soal ide pokok pada bacaan TKA." },
+        { id: 37, level: "EASY", word: "Kalimat Penjelas", cat: "STRUKTUR", meaning: "Kalimat yang menguraikan atau memperkuat gagasan pokok utama.", usage: "Menentukan kalimat pendukung yang relevan." },
+        { id: 38, level: "EASY", word: "Simpulan", cat: "STRUKTUR", meaning: "Keputusan akhir yang ditarik dari premis atau uraian sebelumnya.", usage: "Menyimpulkan isi tersurat dan tersirat bacaan." },
+        { id: 39, level: "EASY", word: "Kutipan", cat: "SINTAKSIS", meaning: "Pengambilan perkataan atau kalimat dari naskah lain sebagai rujukan.", usage: "Menyusun kutipan langsung dan tidak langsung." },
+        { id: 40, level: "EASY", word: "Daftar Pustaka", cat: "SINTAKSIS", meaning: "Daftar sumber rujukan buku/jurnal yang disusun di bagian akhir karya.", usage: "Menyusun rujukan alfabetis sesuai standar EYD." },
+        { id: 41, level: "EASY", word: "Tema", cat: "STRUKTUR", meaning: "Gagasan dasar umum yang menopang keseluruhan isi cerita.", usage: "Menentukan tema sentral fabel atau cerpen." },
+        { id: 42, level: "EASY", word: "Sudut Pandang", cat: "STRUKTUR", meaning: "Cara pengarang menempatkan dirinya dalam memaparkan kisah.", usage: "Menentukan kata ganti orang pertama/ketiga." },
+        { id: 43, level: "EASY", word: "Majas", cat: "MAJAS", meaning: "Pemanfaatan gaya bahasa kiasan untuk membangkitkan efek emosi tertentu.", usage: "Mengelompokkan jenis gaya bahasa." },
+        { id: 44, level: "EASY", word: "Rima", cat: "MAJAS", meaning: "Pengulangan bunyi berselang, baik di dalam baris maupun ujung larik.", usage: "Menentukan pola persajakan pantun a-b-a-b." },
+        { id: 45, level: "EASY", word: "Bait", cat: "MAJAS", meaning: "Satu kesatuan kumpulan baris yang membentuk pola dalam puisi.", usage: "Menghitung stanza atau bait dalam teks puisi." },
+        { id: 46, level: "EASY", word: "Larik", cat: "MAJAS", meaning: "Baris dalam karya puisi yang membentuk satuan makna.", usage: "Mengidentifikasi larik bermajas dalam pantun." },
+        { id: 47, level: "EASY", word: "Afiksasi", cat: "SINTAKSIS", meaning: "Proses pembentukan kata jadian melalui penambahan imbuhan.", usage: "Mengoreksi pembentukan kata berimbuhan meN-." },
+        { id: 48, level: "EASY", word: "Prefiks", cat: "SINTAKSIS", meaning: "Imbuhan yang disisipkan atau dibubuhkan di depan bentuk dasar.", usage: "Menentukan awalan ber-, meng-, di-, atau ke-." },
+        { id: 49, level: "EASY", word: "Sufiks", cat: "SINTAKSIS", meaning: "Imbuhan yang ditambahkan pada bagian belakang kata dasar.", usage: "Menentukan fungsi akhiran -an, -kan, atau -i." },
+        { id: 50, level: "EASY", word: "Konfiks", cat: "SINTAKSIS", meaning: "Gabungan imbuhan yang mengapit bentuk dasar secara bersamaan.", usage: "Menganalisis pembentukan kata per-...-an." },
+        { id: 51, level: "EASY", word: "Morfem", cat: "SINTAKSIS", meaning: "Satuan bentuk bahasa terkecil yang memiliki makna leksikal/gramatikal.", usage: "Membedakan kata bebas dan morfem terikat." },
+        { id: 52, level: "EASY", word: "Frasa", cat: "SINTAKSIS", meaning: "Gabungan dua kata atau lebih yang menduduki satu fungsi kalimat.", usage: "Mengidentifikasi jenis frasa nominal atau verbal." },
+        { id: 53, level: "EASY", word: "Klausa", cat: "SINTAKSIS", meaning: "Satuan gramatikal yang sekurang-kurangnya memiliki subjek dan predikat.", usage: "Membedakan klausa inti dan klausa bawahan." },
+        { id: 54, level: "EASY", word: "Wawancara", cat: "WACANA", meaning: "Tanya jawab lisan dengan narasumber guna memperoleh keterangan.", usage: "Menyusun daftar pertanyaan jurnalistik 5W1H." },
+        { id: 55, level: "EASY", word: "Narasumber", cat: "WACANA", meaning: "Orang yang memberi keterangan atau pakar yang menjadi sumber informasi.", usage: "Menilai kelayakan pakar dalam laporan investigasi." },
+        { id: 56, level: "EASY", word: "Poster", cat: "WACANA", meaning: "Plakat pengumuman bergambar yang dipasang di tempat umum untuk publik.", usage: "Menganalisis pesan persuasif pada media visual." },
+        { id: 57, level: "EASY", word: "Slogan", cat: "WACANA", meaning: "Kalimat pendek yang mencolok dan mudah diingat untuk menyampaikan pesan.", usage: "Menentukan nilai moto/slogan korporat atau sekolah." },
+        { id: 58, level: "EASY", word: "Iklan", cat: "WACANA", meaning: "Pemberitahuan kepada khalayak mengenai barang atau jasa yang ditawarkan.", usage: "Menganalisis fakta dan opini dalam teks iklan." },
+        { id: 59, level: "EASY", word: "Berita", cat: "WACANA", meaning: "Laporan mengenai kejadian atau peristiwa hangat yang baru saja terjadi.", usage: "Menentukan unsur apa, di mana, dan kapan dalam lead berita." },
+        { id: 60, level: "EASY", word: "Tajuk Rencana", cat: "WACANA", meaning: "Artikel pokok dalam surat kabar yang memuat pandangan resmi redaksi.", usage: "Menganalisis opini resmi institusi media massa." },
+        { id: 61, level: "EASY", word: "Surat Resmi", cat: "SINTAKSIS", meaning: "Surat yang dikirim instansi untuk kepentingan resmi dengan format baku.", usage: "Menyunting bagian kop surat dan nomor surat." },
+        { id: 62, level: "EASY", word: "Surat Pribadi", cat: "SINTAKSIS", meaning: "Surat yang ditulis seseorang untuk kerabat dengan bahasa akrab.", usage: "Menentukan salam pembuka yang ramah dan luwes." },
+        { id: 63, level: "EASY", word: "Sinopsis", cat: "STRUKTUR", meaning: "Ringkasan ikhtisar naskah buku atau cerita film secara garis besar.", usage: "Membuat intisari buku fiksi pada teks resensi." },
+        { id: 64, level: "EASY", word: "Resensi", cat: "STRUKTUR", meaning: "Ulasan timbangan mengenai mutu keunggulan dan kelemahan suatu karya.", usage: "Menulis catatan kritik buku atau film." },
+        { id: 65, level: "EASY", word: "Protagonis", cat: "STRUKTUR", meaning: "Tokoh utama dalam lakon atau karya fiksi yang membawakan watak positif.", usage: "Menentukan tokoh utama yang mendukung nilai kebaikan." },
+
+        // ------------------ LEVEL MEDIUM (70 KATA) ------------------
+        { id: 66, level: "MEDIUM", word: "Paradoks", cat: "MAJAS", meaning: "Pernyataan yang seolah berlawanan padahal memuat kebenaran hakiki.", usage: "Menganalisis majas kontradiksi dalam teks sastra." },
+        { id: 67, level: "MEDIUM", word: "Ironi", cat: "MAJAS", meaning: "Sindiran halus menggunakan ungkapan berlawanan dari fakta nyata.", usage: "Menilai gaya bahasa sindiran sopan tokoh cerpen." },
+        { id: 68, level: "MEDIUM", word: "Sarkasme", cat: "MAJAS", meaning: "Sindiran tajam, kasar, dan pedas yang sengaja menyakiti hati lawan bicara.", usage: "Mengidentifikasi luapan amarah tokoh dalam drama." },
+        { id: 69, level: "MEDIUM", word: "Eufemisme", cat: "MAJAS", meaning: "Penghalusan ungkapan untuk menggantikan kata yang dianggap tabu/kasar.", usage: "Memilih istilah yang lebih santun dalam berita resmi." },
+        { id: 70, level: "MEDIUM", word: "Metonimia", cat: "MAJAS", meaning: "Majas yang menyebutkan label, merek, atau atribut untuk menyebut bendanya.", usage: "Menganalisis variasi kata benda dalam teks kreatif." },
+        { id: 71, level: "MEDIUM", word: "Sinekdoke", cat: "MAJAS", meaning: "Gaya bahasa menyebut sebagian untuk seluruh (pars) atau sebaliknya (totum).", usage: "Menganalisis majas perwakilan dalam baris puisi." },
+        { id: 72, level: "MEDIUM", word: "Asosiasi", cat: "MAJAS", meaning: "Perbandingan dua hal berbeda yang sengaja dianggap memiliki kesamaan sifat.", usage: "Menganalisis kiasan persamaan dalam teks persuasi." },
+        { id: 73, level: "MEDIUM", word: "Litotes", cat: "MAJAS", meaning: "Majas yang merendahkan diri secara berlawanan dari kenyataan sebenarnya.", usage: "Menilai sikap santun tokoh dalam wacana adat." },
+        { id: 74, level: "MEDIUM", word: "Pleonasme", cat: "MAJAS", meaning: "Pemakaian kata yang berlebih-lebihan padahal maknanya sudah terangkum.", usage: "Menyunting kalimat boros makna seperti 'maju ke depan'." },
+        { id: 75, level: "MEDIUM", word: "Repetisi", cat: "MAJAS", meaning: "Gaya bahasa pengulangan kata berulang untuk menegaskan fokus amanat.", usage: "Menganalisis penegasan ritme orasi pidato." },
+        { id: 76, level: "MEDIUM", word: "Polisemi", cat: "MAJAS", meaning: "Bentuk kata yang memiliki makna ganda yang masih saling bertautan.", usage: "Menentukan arti kata sesuai kalimat penggunaannya." },
+        { id: 77, level: "MEDIUM", word: "Ambigu", cat: "MAJAS", meaning: "Mengandung tafsiran ganda yang menimbulkan keraguan arti.", usage: "Memperbaiki kalimat yang memicu kesalahpahaman." },
+        { id: 78, level: "MEDIUM", word: "Analogi", cat: "MAJAS", meaning: "Kiasan perbandingan kesetaraan sifat antara dua hal yang berlainan.", usage: "Memahami pemaparan logis teks eksplanasi ilmiah." },
+        { id: 79, level: "MEDIUM", word: "Diksi", cat: "MAJAS", meaning: "Pilihan kata yang tepat dan selaras guna mengungkapkan gagasan.", usage: "Memilih variasi kata yang harmonis dan efektif." },
+        { id: 80, level: "MEDIUM", word: "Kronologis", cat: "STRUKTUR", meaning: "Rangkaian urutan kejadian berdasarkan penanggalan urutan waktu.", usage: "Menilai keruntutan cerita dalam teks riwayat hidup." },
+        { id: 81, level: "MEDIUM", word: "Kausalitas", cat: "STRUKTUR", meaning: "Prinsip hubungan sebab-akibat yang saling mengikat antarperistiwa.", usage: "Menganalisis alur proses pada teks eksplanasi fenomena." },
+        { id: 82, level: "MEDIUM", word: "Sistematis", cat: "STRUKTUR", meaning: "Tersusun teratur menurut aturan skema yang runtut dan logis.", usage: "Mengurutkan tahapan petunjuk kerja acak." },
+        { id: 83, level: "MEDIUM", word: "Intrinsik", cat: "STRUKTUR", meaning: "Unsur pembangun yang terkandung langsung dari dalam teks karya sastra.", usage: "Menganalisis tema, amanat, latar, dan perwatakan." },
+        { id: 84, level: "MEDIUM", word: "Ekstrinsik", cat: "STRUKTUR", meaning: "Faktor luar seperti nilai sosial dan biografi yang melandasi karya.", usage: "Menilai pengaruh latar belakang pengarang terhadap cerpen." },
+        { id: 85, level: "MEDIUM", word: "Konflik", cat: "STRUKTUR", meaning: "Ketegangan atau pertikaian batin maupun fisik antartokoh cerita.", usage: "Menemukan titik komplikasi utama dalam alur novel." },
+        { id: 86, level: "MEDIUM", word: "Resolusi", cat: "STRUKTUR", meaning: "Tahap penyelesaian perkara dan jalan keluar dari krisis konflik.", usage: "Menentukan antiklimaks pada akhir struktur cerpen." },
+        { id: 87, level: "MEDIUM", word: "Orientasi", cat: "STRUKTUR", meaning: "Tahap awal pengenalan tokoh, ruang suasana, dan situasi peristiwa.", usage: "Mengidentifikasi bagian pembuka teks fabel." },
+        { id: 88, level: "MEDIUM", word: "Komplikasi", cat: "STRUKTUR", meaning: "Tahap pemunculan masalah hingga mencapai puncak klimaks cerita.", usage: "Menemukan masalah yang memicu perselisihan cerita." },
+        { id: 89, level: "MEDIUM", word: "Koda", cat: "STRUKTUR", meaning: "Bagian pamungkas teks naratif yang memuat amanat atau ikhtisar nilai.", usage: "Menemukan petuah bijak pengarang di akhir cerita." },
+        { id: 90, level: "MEDIUM", word: "Reiterasi", cat: "STRUKTUR", meaning: "Penegasan ulang posisi klaim awal yang diletakkan di akhir tulisan.", usage: "Mengidentifikasi paragraf simpulan teks eksposisi." },
+        { id: 91, level: "MEDIUM", word: "Perspektif", cat: "STRUKTUR", meaning: "Sudut pandang cara menilai suatu masalah atau memandang objek.", usage: "Menganalisis keberagaman persepsi pengamat artikel." },
+        { id: 92, level: "MEDIUM", word: "Implisit", cat: "STRUKTUR", meaning: "Tersirat; makna yang tersembunyi tidak tertulis secara harfiah.", usage: "Menarik kesimpulan terselubung dari dialog tokoh." },
+        { id: 93, level: "MEDIUM", word: "Eksplisit", cat: "STRUKTUR", meaning: "Tersurat; ditegaskan secara gamblang dan jelas di dalam teks bacaan.", usage: "Menjawab soal fakta langsung berbasis bukti tertulis." },
+        { id: 94, level: "MEDIUM", word: "Sintesis", cat: "STRUKTUR", meaning: "Paduan intisari dari berbagai gagasan menjadi satu rumusan baru.", usage: "Menyatukan dua pokok argumen dari dua sumber bacaan." },
+        { id: 95, level: "MEDIUM", word: "Analisis", cat: "STRUKTUR", meaning: "Penyelidikan mendalam terhadap komponen untuk mengetahui susunannya.", usage: "Membedah bagian teks tanggapan secara objektif." },
+        { id: 96, level: "MEDIUM", word: "Kohesi", cat: "SINTAKSIS", meaning: "Kepaduan bentuk fisik antarunsur kalimat secara gramatikal dan leksikal.", usage: "Menilai keterikatan rujukan kata ganti antarkalimat." },
+        { id: 97, level: "MEDIUM", word: "Koherensi", cat: "SINTAKSIS", meaning: "Kepaduan jalinan makna antarkalimat sehingga membentuk alur logis.", usage: "Menemukan kalimat sumbang yang merusak wacana." },
+        { id: 98, level: "MEDIUM", word: "Redundansi", cat: "SINTAKSIS", meaning: "Pemakaian kata yang berlebih-lebihan atau mubazir dalam kalimat.", usage: "Menghilangkan frasa mubazir seperti 'saling tolong-menolong'." },
+        { id: 99, level: "MEDIUM", word: "Pelesapan", cat: "SINTAKSIS", meaning: "Penghilangan bagian unsur kalimat yang sudah dipahami dari konteks.", usage: "Meringkas kalimat majemuk setara yang boros subjek." },
+        { id: 100, level: "MEDIUM", word: "Korelatif", cat: "SINTAKSIS", meaning: "Konjungsi berpasangan yang menghubungkan dua unsur setara.", usage: "Membetulkan pasangan kata 'tidak hanya... tetapi juga'." },
+        { id: 101, level: "MEDIUM", word: "Subordinatif", cat: "SINTAKSIS", meaning: "Penghubung yang menyatukan dua klausa yang tidak setara derajatnya.", usage: "Menemukan anak kalimat pada pola kalimat majemuk bertingkat." },
+        { id: 102, level: "MEDIUM", word: "Koordinatif", cat: "SINTAKSIS", meaning: "Penghubung dua unsur gramatikal yang memiliki martabat setara.", usage: "Menggunakan kata hubung 'dan, serta, atau'." },
+        { id: 103, level: "MEDIUM", word: "Proposisi", cat: "SINTAKSIS", meaning: "Rancangan kalimat pernyataan yang dapat dinilai benar atau salahnya.", usage: "Menganalisis premis pernyataan dalam teks perdebatan." },
+        { id: 104, level: "MEDIUM", word: "Afirmasi", cat: "SINTAKSIS", meaning: "Pernyataan penegasan sikap positif yang menyetujui mosi perdebatan.", usage: "Menentukan argumen tim afirmasi dalam naskah debat." },
+        { id: 105, level: "MEDIUM", word: "Negasi", cat: "SINTAKSIS", meaning: "Penyangkalan, bantahan, atau pengingkaran terhadap suatu pernyataan.", usage: "Mengidentifikasi sanggahan tim oposisi." },
+        { id: 106, level: "MEDIUM", word: "Intensitas", cat: "SINTAKSIS", meaning: "Tingkat kehebatan, frekuensi, atau kedalaman suatu fenomena.", usage: "Membaca tingkat curah hujan pada teks laporan teknis." },
+        { id: 107, level: "MEDIUM", word: "Komparatif", cat: "SINTAKSIS", meaning: "Pola penyajian kalimat yang mendasarkan pada perbandingan dua aspek.", usage: "Menggunakan kata kunci 'lebih baik daripada'." },
+        { id: 108, level: "MEDIUM", word: "Verifikasi", cat: "WACANA", meaning: "Pemeriksaan tentang kebenaran laporan fakta atau data bukti.", usage: "Membuktikan kesahihan referensi artikel berita." },
+        { id: 109, level: "MEDIUM", word: "Validitas", cat: "WACANA", meaning: "Sifat sahih atau derajat ketepatan ukuran pembuktian argumen.", usage: "Menilai ketepatan data statistik dalam esai." },
+        { id: 110, level: "MEDIUM", word: "Kredibel", cat: "WACANA", meaning: "Dapat dipercaya dan memiliki integritas pengakuan yang tinggi.", usage: "Memilih sumber wacana ensiklopedia yang tepercaya." },
+        { id: 111, level: "MEDIUM", word: "Bias", cat: "WACANA", meaning: "Kecenderungan memihak salah satu sudut pandang secara subjektif.", usage: "Mendeteksi ketidaknetralan penulis opini." },
+        { id: 112, level: "MEDIUM", word: "Polemik", cat: "WACANA", meaning: "Perdebatan lisan atau tertulis di ruang umum mengenai isu krusial.", usage: "Menentukan tema silang pendapat dalam teks diskusi." },
+        { id: 113, level: "MEDIUM", word: "Konsensus", cat: "WACANA", meaning: "Kesepakatan bersama yang dicapai melalui mufakat dan kompromi.", usage: "Menentukan hasil akhir negosiasi antarwarga." },
+        { id: 114, level: "MEDIUM", word: "Kompromi", cat: "WACANA", meaning: "Upaya damai dengan masing-masing pihak saling mengurangi tuntutan.", usage: "Menyelesaikan jalan tengah perselisihan." },
+        { id: 115, level: "MEDIUM", word: "Dilematis", cat: "WACANA", meaning: "Keadaan sulit yang mewajibkan memilih di antara dua opsi berisiko.", usage: "Memahami konflik dilema batin tokoh fiksi." },
+        { id: 116, level: "MEDIUM", word: "Skeptis", cat: "WACANA", meaning: "Sikap hati-hati meragukan kebenaran klaim sebelum ada bukti sahih.", usage: "Menilai keraguan ilmuwan terhadap ramalan iklim." },
+        { id: 117, level: "MEDIUM", word: "Distorsi", cat: "WACANA", meaning: "Pemutarbalikan fakta, kekeliruan pengutipan, atau pemalsuan informasi.", usage: "Mendeteksi hoaks atau distorsi pesan wacana daring." },
+        { id: 118, level: "MEDIUM", word: "Asumsi", cat: "WACANA", meaning: "Dugaan awal yang dianggap benar sementara tanpa verifikasi pasti.", usage: "Menentukan asumsi dasar penulis tajuk rencana." },
+        { id: 119, level: "MEDIUM", word: "Hipotesis", cat: "WACANA", meaning: "Dugaan teoretis ilmiah yang masih harus diuji lewat observasi.", usage: "Menentukan praduga awal laporan percobaan." },
+        { id: 120, level: "MEDIUM", word: "Empiris", cat: "WACANA", meaning: "Berdasarkan pengalaman indrawi nyata dan pengujian di lapangan.", usage: "Menilai pembuktian empiris fenomena sains." },
+        { id: 121, level: "MEDIUM", word: "Konseptual", cat: "WACANA", meaning: "Berlandaskan pada pemahaman kerangka teori dan konsep abstrak.", usage: "Menganalisis definisi konseptual istilah sains." },
+        { id: 122, level: "MEDIUM", word: "Relevan", cat: "WACANA", meaning: "Mempunyai kaitan langsung dan bersangkut paut dengan inti persoalan.", usage: "Menyaring data yang relevan mendukung tesis." },
+        { id: 123, level: "MEDIUM", word: "Substantif", cat: "WACANA", meaning: "Memiliki kebenaran hakiki dan bobot isi mendalam yang penting.", usage: "Membedakan masukan substantif dan sekadar formalitas." },
+        { id: 124, level: "MEDIUM", word: "Komprehensif", cat: "WACANA", meaning: "Meliputi segenap aspek persoalan secara tuntas dan menyeluruh.", usage: "Menentukan kesimpulan yang merangkum seisi laporan." },
+        { id: 125, level: "MEDIUM", word: "Parsial", cat: "WACANA", meaning: "Hanya menyangkut salah satu bagian; tidak menyeluruh.", usage: "Menghindari penarikan kesimpulan yang hanya sepihak." },
+        { id: 126, level: "MEDIUM", word: "Fluktuasi", cat: "WACANA", meaning: "Gejala ketidaktetapan yang memperlihatkan kondisi turun-naik berkala.", usage: "Membaca diagram naik-turunnya harga komoditas." },
+        { id: 127, level: "MEDIUM", word: "Estimasi", cat: "WACANA", meaning: "Prakiraan taksiran mengenai besaran nilai, biaya, atau waktu.", usage: "Menafsirkan perkiraan pengeluaran pada proposal panitia." },
+        { id: 128, level: "MEDIUM", word: "Indikator", cat: "WACANA", meaning: "Alat pengukur atau gejala penanda yang menunjukkan kemajuan situasi.", usage: "Menentukan indikator kelestarian ekosistem bakau." },
+        { id: 129, level: "MEDIUM", word: "Signifikan", cat: "WACANA", meaning: "Sangat penting dan mempunyai dampak pengaruh yang berarti.", usage: "Menyimpulkan perubahan perilaku warga yang nyata." },
+        { id: 130, level: "MEDIUM", word: "Implikasi", cat: "WACANA", meaning: "Efek keterlibatan atau akibat turunan yang timbul dari sebuah ketetapan.", usage: "Memprediksi efek domino kebijakan zonasi sekolah." },
+        { id: 131, level: "MEDIUM", word: "Kolektif", cat: "WACANA", meaning: "Secara bersama-sama dilakukan oleh gabungan banyak pihak terpadu.", usage: "Menganalisis kerja gotong royong penanggulangan banjir." },
+        { id: 132, level: "MEDIUM", word: "Konstruktif", cat: "WACANA", meaning: "Bersifat memperbaiki, membina, dan memberi solusi kemajuan.", usage: "Menulis tanggapan santun yang bersifat membangun." },
+        { id: 133, level: "MEDIUM", word: "Destruktif", cat: "WACANA", meaning: "Bersifat merusak, memusnahkan, atau merugikan keharmonisan.", usage: "Mengidentifikasi kritik negatif yang menghancurkan wacana." },
+        { id: 134, level: "MEDIUM", word: "Kontrastif", cat: "WACANA", meaning: "Memperlihatkan perbedaan mencolok yang saling bertentangan.", usage: "Menghubungkan dua premis berlawanan dengan konjungsi." },
+        { id: 135, level: "MEDIUM", word: "Klarifikasi", cat: "WACANA", meaning: "Penjelasan tegas guna membersihkan keraguan atau salah paham fakta.", usage: "Menemukan pernyataan konfirmasi pada teks klarifikasi pers." },
+
+        // ------------------ LEVEL HARD (65 KATA) ------------------
+        { id: 136, level: "HARD", word: "Premis", cat: "STRUKTUR", meaning: "Kalimat landasan asumsi yang menjadi dasar penarikan simpulan logis.", usage: "Menilai validitas deduksi logika dalam teks persuasi." },
+        { id: 137, level: "HARD", word: "Silogisme", cat: "STRUKTUR", meaning: "Rantai deduktif formal beranggotakan Premis Mayor, Minor, dan Simpulan.", usage: "Menjawab silogisme penalaran kritis pada tes literasi." },
+        { id: 138, level: "HARD", word: "Generalisasi", cat: "STRUKTUR", meaning: "Penyimpulan sifat menyeluruh dari segelintir kejadian partikular.", usage: "Mendeteksi cacat logika gegabah pada tajuk wacana." },
+        { id: 139, level: "HARD", word: "Hierarki", cat: "STRUKTUR", meaning: "Urutan tingkatan berjenjang yang tersusun dari atas ke tingkat bawah.", usage: "Memetakan taksonomi ide konsep bacaan secara bertingkat." },
+        { id: 140, level: "HARD", word: "Konsekutif", cat: "STRUKTUR", meaning: "Berurutan terus-menerus tanpa ada jeda pemisah perantara.", usage: "Memahami urutan proses berantai pada instruksi rekayasa." },
+        { id: 141, level: "HARD", word: "Inkoheren", cat: "SINTAKSIS", meaning: "Tidak padu; tidak bertaut secara logis sehingga sulit dipahami artinya.", usage: "Memperbaiki alinea tulisan yang mengalami loncatan ide." },
+        { id: 142, level: "HARD", word: "Implikatur", cat: "WACANA", meaning: "Maksud ujaran terselubung yang berbeda dari tuturan lahiriah kalimat.", usage: "Menemukan sindiran implisit dalam percakapan tokoh drama." },
+        { id: 143, level: "HARD", word: "Dikotomi", cat: "WACANA", meaning: "Pemisahan ke dalam dua kelompok yang saling bertentangan secara mutlak.", usage: "Membedah polarisasi opini publik pada teks perdebatan." },
+        { id: 144, level: "HARD", word: "Anakronisme", cat: "STRUKTUR", meaning: "Ketidakcocokan penempatan benda, peristiwa, atau latar dengan masanya.", usage: "Menganalisis kesalahan latar waktu dalam novel sejarah." },
+        { id: 145, level: "HARD", word: "Hermeneutika", cat: "WACANA", meaning: "Kajian seni penafsiran makna mendalam sebuah teks naskah kuno.", usage: "Memahami multi-tafsir manuskrip sastra klasik." },
+        { id: 146, level: "HARD", word: "Ambiguitas", cat: "MAJAS", meaning: "Sifat konstruksi kebahasaan yang mendua atau tak tentu maknanya.", usage: "Menghilangkan ketaksaan frasa majemuk yang rancu." },
+        { id: 147, level: "HARD", word: "Alegori", cat: "MAJAS", meaning: "Cerita kiasan metaforis yang menyiratkan ajaran moral mendalam.", usage: "Menganalisis perlambangan fabel alegoris fiksi." },
+        { id: 148, level: "HARD", word: "Hiperonim", cat: "MAJAS", meaning: "Kata umum yang memayungi makna dari kelompok kata bawahan khusus.", usage: "Menentukan kata induk dari rumpun kata tertentu." },
+        { id: 149, level: "HARD", word: "Hiponim", cat: "MAJAS", meaning: "Kata khusus yang tercakup di dalam satuan makna kata umum superordinat.", usage: "Menyusun perincian kategori subordinat kata." },
+        { id: 150, level: "HARD", word: "Homonim", cat: "MAJAS", meaning: "Kata yang sama ejaan dan lafalnya, namun maknanya sama sekali berlainan.", usage: "Membedakan arti kata 'bisa' (racun vs mampu)." },
+        { id: 151, level: "HARD", word: "Homofon", cat: "MAJAS", meaning: "Kata yang lafal bunyinya sama persis tetapi berbeda ejaan dan maknanya.", usage: "Membedakan kata 'bank' (keuangan) dan 'bang' (sapaan)." },
+        { id: 152, level: "HARD", word: "Homograf", cat: "MAJAS", meaning: "Kata yang sama bentuk tulisannya, tetapi beda lafal ucapan dan maknanya.", usage: "Membedakan kata 'apel' (buah vs upacara)." },
+        { id: 153, level: "HARD", word: "Akronim", cat: "SINTAKSIS", meaning: "Kependekan kata berwujud gabungan suku kata yang dilafalkan wajar.", usage: "Membedakan akronim 'Puskesmas' dari singkatan huruf biasa." },
+        { id: 154, level: "HARD", word: "Sinekiosis", cat: "MAJAS", meaning: "Majas yang mempertalikan dua kata yang saling bertolak belakang maknanya.", usage: "Menganalisis paradoks rumit dalam sajak kontemporer." },
+        { id: 155, level: "HARD", word: "Tautologi", cat: "MAJAS", meaning: "Pengulangan kata gagasan yang memakai sinonim tanpa memberi makna baru.", usage: "Menyunting kalimat mubazir berlebihan dalam esai." },
+        { id: 156, level: "HARD", word: "Paralelisme", cat: "MAJAS", meaning: "Pengulangan pola sintaksis atau bunyi yang sejajar dalam bait puisi.", usage: "Menganalisis kesejajaran larik dalam puisi mantra." },
+        { id: 157, level: "HARD", word: "Retorika", cat: "WACANA", meaning: "Keterampilan berpidato yang efektif guna memengaruhi sikap khalayak.", usage: "Menilai gaya seni persuasi orator dalam debat." },
+        { id: 158, level: "HARD", word: "Elipsis", cat: "SINTAKSIS", meaning: "Penghilangan kata fungsional tanpa merusak integritas makna teks.", usage: "Mengefektifkan tuturan dialog spontan naskah lakon." },
+        { id: 159, level: "HARD", word: "Epitom", cat: "STRUKTUR", meaning: "Perwujudan ikhtisar puncak yang menjadi representasi sempurna suatu hal.", usage: "Menafsirkan watak tokoh simbolik dalam cerita." },
+        { id: 160, level: "HARD", word: "Paradigma", cat: "WACANA", meaning: "Kerangka berpikir fundamental yang menjadi pedoman memandang realitas.", usage: "Menganalisis pergeseran paradigma sains dalam artikel opini." },
+        { id: 161, level: "HARD", word: "Aforisme", cat: "MAJAS", meaning: "Ungkapan ringkas padat yang sarat akan doktrin nilai kebijaksanaan.", usage: "Menafsirkan kata mutiara pepatah sastra pujangga." },
+        { id: 162, level: "HARD", word: "Dialektika", cat: "WACANA", meaning: "Metode penalaran dialogis guna memecahkan kontradiksi pandangan.", usage: "Mengamati sintesis argumen dalam pertentangan mosi debat." },
+        { id: 163, level: "HARD", word: "Didaktis", cat: "STRUKTUR", meaning: "Bersifat mendidik budi pekerti atau memberi ajaran moral luhur.", usage: "Menilai muatan pedagogis yang terkandung dalam fabel." },
+        { id: 164, level: "HARD", word: "Solilokui", cat: "STRUKTUR", meaning: "Monolog batin tokoh di pentas teater untuk mencurahkan isi hati kepada audiens.", usage: "Menganalisis pergolakan batin pribadi pangeran lakon." },
+        { id: 165, level: "HARD", word: "Antitesis", cat: "MAJAS", meaning: "Gaya bahasa penyejajaran dua gagasan yang berlawanan secara frontal.", usage: "Menemukan dikotomi tajam dalam kalimat pembuka pidato." },
+        { id: 166, level: "HARD", word: "Klimaks", cat: "STRUKTUR", meaning: "Titik puncak ketegangan konflik yang paling krusial dalam plot narasi.", usage: "Menentukan adegan paling mendebarkan dalam alur cerita." },
+        { id: 167, level: "HARD", word: "Antiklimaks", cat: "STRUKTUR", meaning: "Peredaan intensitas konflik dari tahapan puncak menuju penyelesaian.", usage: "Menganalisis penurunan ketegangan jalan keluar lakon." },
+        { id: 168, level: "HARD", word: "Katarsis", cat: "STRUKTUR", meaning: "Pelepasan emosional rasa haru atau lega yang dialami penonton lakon drama.", usage: "Menilai efek kejiwaan setelah menyaksikan tragedi fiksi." },
+        { id: 169, level: "HARD", word: "Periprase", cat: "MAJAS", meaning: "Ungkapan panjang berputar-putar untuk menggantikan kata tunggal lugas.", usage: "Menyunting kalimat boros berbelit menjadi kalimat lugas." },
+        { id: 170, level: "HARD", word: "Sinestesia", cat: "MAJAS", meaning: "Majas pertukaran tanggapan antara dua indra manusia yang berlainan.", usage: "Menganalisis kalimat rasa kecap beralih rabaan 'kata-katanya manis'." },
+        { id: 171, level: "HARD", word: "Inversi", cat: "SINTAKSIS", meaning: "Pembalikan urutan pola kalimat dengan meletakkan predikat mendahului subjek.", usage: "Menganalisis gaya kalimat puitis 'Datanglah ia kemari'." },
+        { id: 172, level: "HARD", word: "Enjambemen", cat: "MAJAS", meaning: "Pemotongan larik puisi yang melompat ke baris berikut tanpa jeda napas.", usage: "Menilai dinamika penggalan baris pada puisi liris modern." },
+        { id: 173, level: "HARD", word: "Distikon", cat: "MAJAS", meaning: "Bentuk puisi yang setiap satu baitnya terdiri atas dua baris bersajak.", usage: "Mengidentifikasi pola kuplet puisi tradisional." },
+        { id: 174, level: "HARD", word: "Tersina", cat: "MAJAS", meaning: "Bentuk puisi yang setiap baitnya terangkai dari tiga larik berima.", usage: "Menganalisis stanza sajak bertrikotomi." },
+        { id: 175, level: "HARD", word: "Kuartet", cat: "MAJAS", meaning: "Karya sajak puisi yang setiap baitnya dibangun oleh empat larik baris.", usage: "Mengidentifikasi pola rima silang pada bait empat seuntai." },
+        { id: 176, level: "HARD", word: "Kuintet", cat: "MAJAS", meaning: "Karya puisi yang tiap bait pembangunnya terangkai atas lima larik.", usage: "Menganalisis struktur fisik bait sajak lima seuntai." },
+        { id: 177, level: "HARD", word: "Sextet", cat: "MAJAS", meaning: "Bait sajak puisi yang disusun oleh enam untaian larik secara padu.", usage: "Menganalisis pembagian stanza soneta Italia." },
+        { id: 178, level: "HARD", word: "Septima", cat: "MAJAS", meaning: "Bait puisi karya sastra yang tersusun dari tujuh larik bersajak.", usage: "Menganalisis rima bait tujuh untai sajak pujangga baru." },
+        { id: 179, level: "HARD", word: "Oktaf", cat: "MAJAS", meaning: "Bait puisi delapan baris pembuka yang lazim ditemukan pada puisi soneta.", usage: "Menganalisis pembuka masalah dalam puisi berstruktur soneta." },
+        { id: 180, level: "HARD", word: "Soneta", cat: "MAJAS", meaning: "Karya puisi klasik empat belas baris terbagi atas dua kuatren dan dua tersina.", usage: "Menganalisis metrum sajak 14 baris angkatan Pujangga Baru." },
+        { id: 181, level: "HARD", word: "Koeksistensi", cat: "WACANA", meaning: "Keadaan hidup berdampingan secara damai di tengah perbedaan tajam.", usage: "Menyimpulkan solusi wacana pluralisme kerukunan warga." },
+        { id: 182, level: "HARD", word: "Polarisasi", cat: "WACANA", meaning: "Pembelahan massa ke dalam dua kutub pandangan ekstrem yang berseberangan.", usage: "Menganalisis fenomena perpecahan opini di media sosial." },
+        { id: 183, level: "HARD", word: "Alienasi", cat: "STRUKTUR", meaning: "Kondisi kejiwaan merasa terasing, terisolasi, atau disisihkan dari lingkungan.", usage: "Menganalisis motif psikologis keterasingan tokoh novel." },
+        { id: 184, level: "HARD", word: "Tipologi", cat: "STRUKTUR", meaning: "Kajian ilmu tentang pengelompokan klasifikasi berdasarkan tipe kesamaan ciri.", usage: "Menganalisis tipologi kepribadian watak tokoh fiksi." },
+        { id: 185, level: "HARD", word: "Kanonik", cat: "STRUKTUR", meaning: "Karya yang telah diakui secara resmi menjadi standar pedoman baku tradisi.", usage: "Menentukan naskah sastra yang masuk ke dalam kanon sastra." },
+        { id: 186, level: "HARD", word: "Intertekstualitas", cat: "STRUKTUR", meaning: "Hubungan keterkaitan makna antar-naskah teks di mana satu naskah menyerap naskah lain.", usage: "Menilai adaptasi naskah Mahabharata ke dalam cerpen lokal." },
+        { id: 187, level: "HARD", word: "Mimesis", cat: "MAJAS", meaning: "Teori sastra peniruan kenyataan realitas hidup ke dalam karya seni.", usage: "Menilai kesesuaian potret realitas sosial pada cerpen realis." },
+        { id: 188, level: "HARD", word: "Puitika", cat: "MAJAS", meaning: "Teori kaidah dasar perihal hakikat, bentuk, dan estetika karya puisi.", usage: "Membedah keindahan stilistika bahasa sajak Chairil Anwar." },
+        { id: 189, level: "HARD", word: "Akurasi", cat: "WACANA", meaning: "Derajat ketelitian dan kecermatan presisi dari suatu data pengamatan.", usage: "Menilai presisi data persentase pada laporan sensus." },
+        { id: 190, level: "HARD", word: "Anomali", cat: "WACANA", meaning: "Penyimpangan keanehan dari pola normal atau keteraturan lazim.", usage: "Mendeteksi anomali cuaca ekstrem dalam teks eksposisi sains." },
+        { id: 191, level: "HARD", word: "Eksplanasi", cat: "STRUKTUR", meaning: "Teks yang menerangkan rentetan proses bagaimana dan mengapa fenomena terjadi.", usage: "Menganalisis kronologi terjadinya gempa tektonik." },
+        { id: 192, level: "HARD", word: "Argumentasi", cat: "STRUKTUR", meaning: "Ragam wacana yang membuktikan kebenaran dengan menyodorkan data bernalar.", usage: "Memperkuat tesis menggunakan bukti data yang logis." },
+        { id: 193, level: "HARD", word: "Korespondensi", cat: "SINTAKSIS", meaning: "Aktivitas berkirim surat-menyurat dinas resmi antarlembaga.", usage: "Menyusun etika korespondensi surat permohonan izin." },
+        { id: 194, level: "HARD", word: "Notula", cat: "SINTAKSIS", meaning: "Catatan resmi jalannya rapat musyawarah dari awal hingga keputusan mufakat.", usage: "Menyusun risalah hasil diskusi kelompok siswa." },
+        { id: 195, level: "HARD", word: "Silabus", cat: "STRUKTUR", meaning: "Garis besar ringkasan rancangan rencana materi pelajaran kurikulum.", usage: "Memetakan capaian pembelajaran literasi bahasa." },
+        { id: 196, level: "HARD", word: "Monografi", cat: "STRUKTUR", meaning: "Karya tulis ilmiah terperinci yang membedah satu topik khusus mendalam.", usage: "Membaca laporan monografi mengenai konservasi badak Jawa." },
+        { id: 197, level: "HARD", word: "Disertasi", cat: "STRUKTUR", meaning: "Karangan ilmiah orisinal mendalam guna meraih gelar akademis tertinggi doktor.", usage: "Menganalisis temuan orisinal kebaruan riset bahasa." },
+        { id: 198, level: "HARD", word: "Tesis", cat: "STRUKTUR", meaning: "Pernyataan dalil klaim pendirian yang dikemukakan didukung argumen ilmiah.", usage: "Menentukan letak kalimat tesis dalam teks pidato." },
+        { id: 199, level: "HARD", word: "Bibliografi", cat: "SINTAKSIS", meaning: "Daftar penerbitan pustaka yang berkaitan dengan subjek atau kajian tertentu.", usage: "Memeriksa kelengkapan kepustakaan buku rujukan." },
+        { id: 200, level: "HARD", word: "Leksikon", cat: "MAJAS", meaning: "Perbendaharaan kata atau kamus kosakata menyeluruh yang dimiliki suatu bahasa.", usage: "Menilai luasnya kekayaan leksikon bahasa Indonesia baku." }
+    ];
+
+    /* ==========================================================================
+       MODUL 2: STATE STORAGE & ZERO-REPETITION ENGINE
+       ========================================================================== */
+    const STORAGE_HISTORY = "ARENA_TKA_200_HISTORY_DATA";
+    const STORAGE_USED_POOL = "ARENA_TKA_200_USED_IDS";
+
+    let currentStudent = "";
+    let currentClass = "";
+    let baseTime = 25;
+    let activeQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let streak = 0;
+    let maxStreak = 0;
+    let timeLeft = 25;
+    let timerInterval = null;
+    let sessionAnswersHistory = [];
+
+    let lifelineState = { hint: true, freeze: true, skip: true };
+
+    // Ambil daftar ID yang sudah terpakai
+    function getUsedWordIds() {
+        try {
+            const data = localStorage.getItem(STORAGE_USED_POOL);
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveUsedWordIds(ids) {
+        localStorage.setItem(STORAGE_USED_POOL, JSON.stringify(ids));
+        updatePoolTrackerDisplay();
+    }
+
+    function getStorageData() {
+        try {
+            const data = localStorage.getItem(STORAGE_HISTORY);
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveStorageData(arr) {
+        localStorage.setItem(STORAGE_HISTORY, JSON.stringify(arr));
+    }
+
+    function shuffleArray(arr) {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+    }
+
+    // Reset Pool Tracker (Mulai Baru)
+    function resetPoolTracker() {
+        if (confirm("Reset inventaris kosakata terpakai? Seluruh 200 kosakata akan kembali segar dan siap diujikan dari nol.")) {
+            localStorage.removeItem(STORAGE_USED_POOL);
+            updatePoolTrackerDisplay();
+            alert("Inventaris kata berhasil disegarkan kembali!");
+        }
+    }
+
+    // Hitung sisa kosakata yang belum pernah keluar
+    function updatePoolTrackerDisplay() {
+        const usedIds = new Set(getUsedWordIds());
+        const easyAvail = masterVocabulary.filter(w => w.level === "EASY" && !usedIds.has(w.id)).length;
+        const medAvail = masterVocabulary.filter(w => w.level === "MEDIUM" && !usedIds.has(w.id)).length;
+        const hardAvail = masterVocabulary.filter(w => w.level === "HARD" && !usedIds.has(w.id)).length;
+
+        document.getElementById("pool-easy-count").textContent = `${easyAvail} / 65`;
+        document.getElementById("pool-med-count").textContent = `${medAvail} / 70`;
+        document.getElementById("pool-hard-count").textContent = `${hardAvail} / 65`;
+    }
+
+    /* ==========================================================================
+       MODUL 3: AUDIO ENGINE (WEB AUDIO API MURNI)
+       ========================================================================== */
+    let audioCtx = null;
+    let audioEnabled = true;
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function toggleAudio() {
+        audioEnabled = !audioEnabled;
+        const btn = document.getElementById("audio-toggle");
+        btn.textContent = audioEnabled ? "🔊 Audio: ON" : "🔇 Audio: OFF";
+        btn.style.color = audioEnabled ? "#cbd5e1" : "#ef4444";
+    }
+
+    function playTone(freq, type, duration, delay = 0) {
+        if (!audioEnabled) return;
+        try {
+            initAudio();
+            setTimeout(() => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            }, delay * 1000);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function sfxCorrect() {
+        playTone(523.25, 'sine', 0.1, 0);
+        playTone(659.25, 'sine', 0.1, 0.08);
+        playTone(783.99, 'sine', 0.22, 0.15);
+    }
+
+    function sfxWrong() {
+        playTone(180, 'sawtooth', 0.16, 0);
+        playTone(130, 'sawtooth', 0.3, 0.1);
+    }
+
+    function sfxTick() { playTone(950, 'triangle', 0.03, 0); }
+    function sfxWin() {
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => playTone(freq, 'sine', 0.25, i * 0.1));
+    }
+
+    /* ==========================================================================
+       MODUL 4: CONFETTI PARTICLE SYSTEM
+       ========================================================================== */
+    const canvas = document.getElementById("confetti-canvas");
+    const ctx = canvas.getContext("2d");
+    let confettiParticles = [];
+    let confettiActive = false;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function triggerConfetti() {
+        confettiParticles = [];
+        const colors = ["#60a5fa", "#34d399", "#fbbf24", "#f472b6", "#a78bfa", "#f87171"];
+        for (let i = 0; i < 90; i++) {
+            confettiParticles.push({
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                r: Math.random() * 6 + 4,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                vx: (Math.random() - 0.5) * 14,
+                vy: (Math.random() - 0.7) * 16,
+                gravity: 0.35,
+                opacity: 1
+            });
+        }
+        if (!confettiActive) {
+            confettiActive = true;
+            renderConfetti();
+        }
+    }
+
+    function renderConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let living = 0;
+        for (let p of confettiParticles) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.opacity -= 0.012;
+            if (p.opacity > 0) {
+                living++;
+                ctx.globalAlpha = p.opacity;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        ctx.globalAlpha = 1;
+        if (living > 0) requestAnimationFrame(renderConfetti);
+        else {
+            confettiActive = false;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    /* ==========================================================================
+       MODUL 5: ALGORITMA LEVELING 15 SOAL (5 EASY, 5 MED, 5 HARD)
+       ========================================================================== */
+    function startLevelingQuiz() {
+        initAudio();
+        const nameInput = document.getElementById("input-name").value.trim();
+        if (!nameInput) {
+            alert("Harap masukkan nama siswa atau nomor presensi terlebih dahulu!");
+            return;
+        }
+
+        currentStudent = nameInput;
+        currentClass = document.getElementById("input-class").value;
+        baseTime = parseInt(document.getElementById("input-time").value, 10);
+
+        let usedIds = getUsedWordIds();
+
+        // 1. Ekstrak pool yang belum dipakai per jenjang
+        let easyPool = masterVocabulary.filter(w => w.level === "EASY" && !usedIds.includes(w.id));
+        let medPool  = masterVocabulary.filter(w => w.level === "MEDIUM" && !usedIds.includes(w.id));
+        let hardPool = masterVocabulary.filter(w => w.level === "HARD" && !usedIds.includes(w.id));
+
+        // Auto-refresh jika pool salah satu level habis
+        let needResetPool = false;
+        if (easyPool.length < 5) {
+            usedIds = usedIds.filter(id => masterVocabulary.find(w => w.id === id)?.level !== "EASY");
+            easyPool = masterVocabulary.filter(w => w.level === "EASY");
+            needResetPool = true;
+        }
+        if (medPool.length < 5) {
+            usedIds = usedIds.filter(id => masterVocabulary.find(w => w.id === id)?.level !== "MEDIUM");
+            medPool = masterVocabulary.filter(w => w.level === "MEDIUM");
+            needResetPool = true;
+        }
+        if (hardPool.length < 5) {
+            usedIds = usedIds.filter(id => masterVocabulary.find(w => w.id === id)?.level !== "HARD");
+            hardPool = masterVocabulary.filter(w => w.level === "HARD");
+            needResetPool = true;
+        }
+
+        if (needResetPool) {
+            saveUsedWordIds(usedIds);
+        }
+
+        // 2. Ambil tepat 5 acak dari masing-masing tingkatan
+        const pickEasy = shuffleArray(easyPool).slice(0, 5);
+        const pickMed  = shuffleArray(medPool).slice(0, 5);
+        const pickHard = shuffleArray(hardPool).slice(0, 5);
+
+        // Gabungkan secara berurutan: 5 Mudah -> 5 Medium -> 5 Sulit
+        activeQuestions = [...pickEasy, ...pickMed, ...pickHard];
+
+        // 3. Catat ID kata yang terpilih ke dalam usedIds agar sesi berikutnya terjamin berbeda (Zero Repetition)
+        const newlyUsed = activeQuestions.map(w => w.id);
+        saveUsedWordIds([...usedIds, ...newlyUsed]);
+
+        // Inisialisasi state kuis
+        currentIndex = 0;
+        score = 0;
+        streak = 0;
+        maxStreak = 0;
+        sessionAnswersHistory = [];
+        lifelineState = { hint: true, freeze: true, skip: true };
+        updateLifelineButtons();
+
+        document.getElementById("disp-student-name").textContent = currentStudent;
+        document.getElementById("disp-student-class").textContent = currentClass;
+        document.getElementById("disp-score").textContent = score;
+        document.getElementById("disp-streak").textContent = streak + "x";
+
+        document.getElementById("start-screen").style.display = "none";
+        document.getElementById("completion-screen").style.display = "none";
+        document.getElementById("quiz-area").style.display = "flex";
+
+        loadCard();
+    }
+
+    function updateLifelineButtons() {
+        document.getElementById("ll-hint").disabled = !lifelineState.hint;
+        document.getElementById("ll-freeze").disabled = !lifelineState.freeze;
+        document.getElementById("ll-skip").disabled = !lifelineState.skip;
+    }
+
+    function useHintClue() {
+        if (!lifelineState.hint) return;
+        lifelineState.hint = false;
+        updateLifelineButtons();
+
+        const curWord = activeQuestions[currentIndex].word;
+        const clueBox = document.getElementById("clue-box");
+        clueBox.textContent = `💡 Awalan Huruf: "${curWord.substring(0, 2).toUpperCase()}..." (Total: ${curWord.length} Huruf)`;
+        clueBox.style.display = "block";
+    }
+
+    function useFreezeTimer() {
+        if (!lifelineState.freeze) return;
+        lifelineState.freeze = false;
+        updateLifelineButtons();
+
+        timeLeft += 15;
+        const timerDisp = document.getElementById("disp-timer");
+        timerDisp.textContent = timeLeft + "s";
+        timerDisp.style.color = "#38bdf8";
+        setTimeout(() => { timerDisp.style.color = "#f59e0b"; }, 1500);
+    }
+
+    function useSkipWord() {
+        if (!lifelineState.skip) return;
+        lifelineState.skip = false;
+        updateLifelineButtons();
+
+        const curLevel = activeQuestions[currentIndex].level;
+        const usedIds = new Set(getUsedWordIds());
+
+        // Cari kata pengganti yang satu level dan belum digunakan
+        const replacementPool = masterVocabulary.filter(w => w.level === curLevel && !usedIds.has(w.id));
+        if (replacementPool.length > 0) {
+            const newWord = replacementPool[Math.floor(Math.random() * replacementPool.length)];
+            activeQuestions[currentIndex] = newWord;
+            const currentUsed = getUsedWordIds();
+            saveUsedWordIds([...currentUsed, newWord.id]);
+            loadCard();
+        } else {
+            alert("Tidak ada kosakata cadangan tersisa di tingkat ini!");
+        }
+    }
+
+    function loadCard() {
+        if (currentIndex >= 15) {
+            finishSession();
+            return;
+        }
+
+        const data = activeQuestions[currentIndex];
+
+        // Penanda Stage Visual
+        const badge = document.getElementById("stage-badge");
+        if (currentIndex < 5) {
+            badge.className = "stage-indicator stage-easy";
+            badge.textContent = `🌱 TAHAP 1: KOSAKATA MUDAH (SOAL ${currentIndex + 1} / 5)`;
+        } else if (currentIndex < 10) {
+            badge.className = "stage-indicator stage-medium";
+            badge.textContent = `🔥 TAHAP 2: KOSAKATA SEDANG (SOAL ${currentIndex + 1} / 10)`;
+        } else {
+            badge.className = "stage-indicator stage-hard";
+            badge.textContent = `⚡ TAHAP 3: KOSAKATA SULIT (SOAL ${currentIndex + 1} / 15)`;
+        }
+
+        document.getElementById("disp-word").textContent = data.word;
+        document.getElementById("disp-category").textContent = `${data.cat} • ${data.level}`;
+        document.getElementById("disp-meaning").textContent = data.meaning;
+        document.getElementById("disp-usage").textContent = data.usage;
+        document.getElementById("disp-progress").textContent = `${currentIndex + 1} / 15`;
+
+        document.getElementById("answer-panel").style.display = "none";
+        document.getElementById("clue-box").style.display = "none";
+        document.getElementById("card-arena").classList.remove("shake");
+
+        startTimer();
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = baseTime;
+        const timerDisp = document.getElementById("disp-timer");
+        timerDisp.textContent = timeLeft + "s";
+        timerDisp.style.color = "#f59e0b";
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisp.textContent = timeLeft + "s";
+
+            if (timeLeft <= 5 && timeLeft > 0) {
+                timerDisp.style.color = "#ef4444";
+                sfxTick();
+            }
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                sfxWrong();
+                document.getElementById("card-arena").classList.add("shake");
+                revealAnswer();
+            }
+        }, 1000);
+    }
+
+    function revealAnswer() {
+        document.getElementById("answer-panel").style.display = "block";
+    }
+
+    function submitJudgment(isCorrect) {
+        clearInterval(timerInterval);
+        const curData = activeQuestions[currentIndex];
+
+        if (isCorrect) {
+            sfxCorrect();
+            streak++;
+            if (streak > maxStreak) maxStreak = streak;
+
+            // Bobot nilai bertingkat: Easy = 10, Medium = 15, Hard = 20 + bonus streak
+            let basePoint = 10;
+            if (curData.level === "MEDIUM") basePoint = 15;
+            if (curData.level === "HARD") basePoint = 20;
+
+            let bonus = 0;
+            if (streak >= 5) bonus = 5;
+            else if (streak >= 3) bonus = 2;
+
+            score += (basePoint + bonus);
+            document.getElementById("disp-score").textContent = score;
+
+            if (streak >= 3) triggerConfetti();
+        } else {
+            sfxWrong();
+            streak = 0;
+            document.getElementById("card-arena").classList.add("shake");
+        }
+
+        document.getElementById("disp-streak").textContent = streak + "x";
+
+        sessionAnswersHistory.push({
+            word: curData.word,
+            level: curData.level,
+            meaning: curData.meaning,
+            isCorrect: isCorrect
+        });
+
+        currentIndex++;
+        setTimeout(loadCard, 350);
+    }
+
+    function manualForceEnd() {
+        if (confirm(`Hentikan pengujian lisan untuk ${currentStudent} sekarang? Skor terkumpul (${score}) akan disimpan.`)) {
+            finishSession();
+        }
+    }
+
+    function getAcademicTitle(finalScore) {
+        if (finalScore >= 240) return "Master Leksikografi Paripurna 👑";
+        if (finalScore >= 190) return "Pujangga Berwawasan Kritis 🏆";
+        if (finalScore >= 140) return "Pakar Semantik Tingkat Madya 🎖️";
+        if (finalScore >= 90)  return "Penjelajah Kosakata Berbakat 📜";
+        return "Perintis Literasi TKA 📚";
+    }
+
+    function finishSession() {
+        clearInterval(timerInterval);
+        sfxWin();
+        triggerConfetti();
+
+        document.getElementById("quiz-area").style.display = "none";
+        document.getElementById("completion-screen").style.display = "block";
+
+        const title = getAcademicTitle(score);
+        const totalCorrect = sessionAnswersHistory.filter(h => h.isCorrect).length;
+
+        document.getElementById("res-student-name").textContent = currentStudent;
+        document.getElementById("res-student-class").textContent = `Kelas ${currentClass}`;
+        document.getElementById("res-badge-title").textContent = title;
+        document.getElementById("res-score").textContent = score;
+        document.getElementById("res-details").textContent = `(${totalCorrect} / ${sessionAnswersHistory.length} Kata Terjawab Benar • Max Streak: ${maxStreak}x)`;
+
+        // Render Rincian Jawaban
+        const remList = document.getElementById("remedial-list");
+        remList.innerHTML = sessionAnswersHistory.map(item => `
+            <li class="remedial-item ${item.isCorrect ? 'correct' : 'wrong'}">
+                <span>[${item.level}] <strong>${item.word}</strong>: ${item.meaning}</span>
+                <span>${item.isCorrect ? '✅ Tuntas' : '❌ Remedial'}</span>
+            </li>
+        `).join("");
+
+        // Simpan Hasil ke Rekap LocalStorage
+        const history = getStorageData();
+        const now = new Date();
+        const timeString = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+
+        history.push({
+            id: Date.now(),
+            name: currentStudent,
+            studentClass: currentClass,
+            score: score,
+            title: title,
+            correctRatio: `${totalCorrect}/${sessionAnswersHistory.length}`,
+            time: `${timeString} (${now.toISOString().slice(0, 10)})`
+        });
+
+        saveStorageData(history);
+        renderHistoryTable();
+        updatePoolTrackerDisplay();
+    }
+
+    function resetToHome() {
+        document.getElementById("input-name").value = "";
+        document.getElementById("completion-screen").style.display = "none";
+        document.getElementById("start-screen").style.display = "flex";
+        document.getElementById("input-name").focus();
+    }
+
+    /* ==========================================================================
+       MODUL 6: TABEL ADMIN REKAP & EKSPOR CSV
+       ========================================================================== */
+    function renderHistoryTable() {
+        const history = getStorageData();
+        const filterClass = document.getElementById("filter-class-recap").value;
+        const searchQuery = document.getElementById("filter-search-recap").value.toLowerCase();
+        const tbody = document.getElementById("history-tbody");
+
+        let filtered = history.filter(item => {
+            const matchClass = (filterClass === "ALL" || item.studentClass === filterClass);
+            const matchName = item.name.toLowerCase().includes(searchQuery);
+            return matchClass && matchName;
+        });
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-sub); padding: 16px;">Belum ada catatan evaluasi siswa.</td></tr>`;
+            return;
+        }
+
+        filtered.reverse();
+
+        tbody.innerHTML = filtered.map((item, idx) => `
+            <tr>
+                <td>${idx + 1}</td>
+                <td><strong style="color: #c084fc;">${item.studentClass}</strong></td>
+                <td><strong>${item.name}</strong></td>
+                <td><strong style="color: #4ade80;">${item.score}</strong></td>
+                <td><span style="font-size: 0.85rem; color: #fde047;">${item.title}</span></td>
+                <td><span style="font-size: 0.82rem; background: #334155; padding: 2px 6px; border-radius: 4px;">${item.correctRatio}</span></td>
+                <td style="color: var(--text-sub); font-size: 0.8rem;">${item.time}</td>
+            </tr>
+        `).join("");
+    }
+
+    function clearAllHistory() {
+        if (confirm("Hapus seluruh catatan rekap nilai siswa yang tersimpan di browser ini?")) {
+            localStorage.removeItem(STORAGE_HISTORY);
+            renderHistoryTable();
+        }
+    }
+
+    function exportToCSV() {
+        const history = getStorageData();
+        if (history.length === 0) {
+            alert("Belum ada data nilai yang bisa diekspor!");
+            return;
+        }
+
+        let csv = "\uFEFFNo;Kelas;Nama Siswa;Skor Akhir;Predikat;Rasio Benar;Waktu Pengujian\n";
+        history.forEach((row, i) => {
+            csv += `${i + 1};"${row.studentClass}";"${row.name.replace(/"/g, '""')}";${row.score};"${row.title}";"${row.correctRatio}";"${row.time}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Rekap_TKA_200_Leveling_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+        updatePoolTrackerDisplay();
+        renderHistoryTable();
+    });
+</script>
+</body>
+</html>
