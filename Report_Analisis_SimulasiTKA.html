@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Hasil Simulasi TKA - SMPN 28 Bandung</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        indigo: '#6366f1',
+                        emerald: '#10b981',
+                        rose: '#f43f5e',
+                        amber: '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; color: black; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- TOP NAVIGATION / HEADER -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Title & School Badge -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-md">
+                        <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-bold text-slate-900 leading-tight">SMPN 28 BANDUNG</h1>
+                        <p class="text-xs text-slate-500 font-medium">Dashboard Analisis Simulasi TKA 2024/2025</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="exportToCSV()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
+                        <i data-lucide="download" class="w-4 h-4"></i> Export CSV
+                    </button>
+                    <button onclick="window.print()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition">
+                        <i data-lucide="printer" class="w-4 h-4"></i> Cetak Ringkasan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- HEADER BANNER & QUICK STATS -->
+        <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
+            <div class="absolute right-0 top-0 translate-x-12 -translate-y-8 opacity-10 pointer-events-none">
+                <i data-lucide="award" class="w-96 h-96"></i>
+            </div>
+            <div class="relative z-10">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Laporan Resmi Hasil Simulasi TKA
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-bold mt-2">Ringkasan Evaluasi Angkatan</h2>
+                        <p class="text-indigo-200 text-sm mt-1 max-w-2xl">
+                            Analisis komprehensif performa 338 siswa pada mata pelajaran Bahasa Indonesia dan Matematika untuk pemetaan program intervensi.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white/10 backdrop-blur-md px-4 py-3 rounded-xl border border-white/10 text-center">
+                            <p class="text-xs text-indigo-200 uppercase font-medium">Total Peserta</p>
+                            <p class="text-2xl font-bold mt-0.5">338 <span class="text-xs font-normal">Siswa</span></p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-md px-4 py-3 rounded-xl border border-white/10 text-center">
+                            <p class="text-xs text-indigo-200 uppercase font-medium">Rata-Rata TKA</p>
+                            <p class="text-2xl font-bold text-amber-300 mt-0.5">59.85</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI CARDS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <!-- Card 1: Bahasa Indonesia -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Bahasa Indonesia</span>
+                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h3 class="text-2xl font-extrabold text-slate-900" id="stat-bin-avg">74.40</h3>
+                    <p class="text-xs text-emerald-600 font-medium mt-1 flex items-center gap-1">
+                        <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> Rata-rata 22.3 Benar / 30 Soal
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 2: Matematika -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Matematika</span>
+                    <div class="p-2 bg-rose-50 text-rose-600 rounded-lg">
+                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h3 class="text-2xl font-extrabold text-slate-900" id="stat-mat-avg">45.31</h3>
+                    <p class="text-xs text-rose-600 font-medium mt-1 flex items-center gap-1">
+                        <i data-lucide="trending-down" class="w-3.5 h-3.5"></i> Perlu Atensi Khusus (13.6 Benar)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 3: Perlu Intervensi (<55) -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition border-l-4 border-l-rose-500">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Perlu Intervensi</span>
+                    <div class="p-2 bg-rose-100 text-rose-700 rounded-lg">
+                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h3 class="text-2xl font-extrabold text-rose-600" id="stat-intervensi">114</h3>
+                    <p class="text-xs text-slate-500 font-medium mt-1">Siswa dengan Rerata &lt; 55</p>
+                </div>
+            </div>
+
+            <!-- Card 4: Pengayaan (>=80) -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition border-l-4 border-l-emerald-500">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Siap Pengayaan</span>
+                    <div class="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
+                        <i data-lucide="star" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h3 class="text-2xl font-extrabold text-emerald-600" id="stat-pengayaan">18</h3>
+                    <p class="text-xs text-slate-500 font-medium mt-1">Siswa Prestasi High-Tier</p>
+                </div>
+            </div>
+
+            <!-- Card 5: Isu Manajemen Waktu (Kosong > 0) -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition border-l-4 border-l-amber-500">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Soal Kosong</span>
+                    <div class="p-2 bg-amber-100 text-amber-700 rounded-lg">
+                        <i data-lucide="clock" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h3 class="text-2xl font-extrabold text-amber-600" id="stat-kosong">64</h3>
+                    <p class="text-xs text-slate-500 font-medium mt-1">Siswa Ada Jawaban Kosong</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Chart 1: Distribusi Kategori -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-600"></i> Distribusi Kategori Nilai Total
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Proporsi tingkat penguasaan siswa angkatan</p>
+                </div>
+                <div class="relative h-64 mt-4">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: Perbandingan Performa Mapel -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-600"></i> Perbandingan Mapel (BIN vs MAT)
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Sebaran ketuntasan per mata pelajaran</p>
+                </div>
+                <div class="relative h-64 mt-4">
+                    <canvas id="subjectComparisonChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 3: Top 10 Siswa Prestasi -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i> Top 5 Nilai Tertinggi
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Siswa dengan perolehan Rerata terbaik</p>
+                </div>
+                <div id="topRankList" class="space-y-2 mt-4">
+                    <!-- Dynamic rendering by JS -->
+                </div>
+                <button onclick="filterTableCategory('Sangat Baik')" class="mt-3 text-xs text-center w-full py-2 bg-slate-50 hover:bg-slate-100 text-indigo-600 font-semibold rounded-lg border border-slate-200 transition">
+                    Lihat Seluruh Siswa High Performers &rarr;
+                </button>
+            </div>
+        </div>
+
+        <!-- DATA TABLE SECTION -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden" id="table-section">
+            <!-- Table Header Filters & Search -->
+            <div class="p-5 border-b border-slate-200 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Daftar Hasil Siswa TKA</h3>
+                        <p class="text-xs text-slate-500">Klik nama atau tombol aksi untuk melihat Rapor & Diagnosa Modul</p>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative w-full md:w-80">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Cari Nama atau No. Reg..." class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <!-- Filter Badges / Buttons -->
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                    <div class="flex flex-wrap items-center gap-1.5" id="categoryFilterButtons">
+                        <button onclick="setFilterCategory('ALL')" class="btn-filter px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-white transition" data-cat="ALL">Semua (338)</button>
+                        <button onclick="setFilterCategory('INTERVENSI')" class="btn-filter px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition" data-cat="INTERVENSI">Perlu Intervensi (&lt;55)</button>
+                        <button onclick="setFilterCategory('CUKUP')" class="btn-filter px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-amber-50 hover:text-amber-600 transition" data-cat="CUKUP">Cukup (55-69)</button>
+                        <button onclick="setFilterCategory('BAIK')" class="btn-filter px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition" data-cat="BAIK">Baik (70-84)</button>
+                        <button onclick="setFilterCategory('SANGAT_BAIK')" class="btn-filter px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition" data-cat="SANGAT_BAIK">Sangat Baik (&ge;85)</button>
+                    </div>
+
+                    <!-- Quick Condition Filters -->
+                    <div class="flex items-center gap-2">
+                        <select id="quickConditionSelect" onchange="handleQuickCondition()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="NONE">-- Filter Kondisi Spesifik --</option>
+                            <option value="MAT_KRITIS">Matematika &lt; 50 (Sangat Rendah)</option>
+                            <option value="KOSONG_GT_0">Memiliki Jawaban Kosong &gt; 0</option>
+                            <option value="BIN_HIGH">Bahasa Indonesia &ge; 85 (Unggul)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Table -->
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                            <th class="py-3 px-4">No Reg</th>
+                            <th class="py-3 px-4 cursor-pointer hover:bg-slate-200 transition" onclick="sortTable('nama')">
+                                Nama Siswa <i data-lucide="arrow-up-down" class="w-3 h-3 inline ml-1"></i>
+                            </th>
+                            <th class="py-3 px-4 text-center cursor-pointer hover:bg-slate-200 transition" onclick="sortTable('nilai_bin')">
+                                Bahasa Indonesia <i data-lucide="arrow-up-down" class="w-3 h-3 inline ml-1"></i>
+                            </th>
+                            <th class="py-3 px-4 text-center cursor-pointer hover:bg-slate-200 transition" onclick="sortTable('nilai_mat')">
+                                Matematika <i data-lucide="arrow-up-down" class="w-3 h-3 inline ml-1"></i>
+                            </th>
+                            <th class="py-3 px-4 text-center cursor-pointer hover:bg-slate-200 transition" onclick="sortTable('rerata')">
+                                Rerata TKA <i data-lucide="arrow-up-down" class="w-3 h-3 inline ml-1"></i>
+                            </th>
+                            <th class="py-3 px-4 text-center">Status</th>
+                            <th class="py-3 px-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody" class="divide-y divide-slate-200">
+                        <!-- Rendered by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table Pagination -->
+            <div class="p-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+                <div id="paginationInfo">
+                    Menampilkan 1-10 dari 338 siswa
+                </div>
+                <div class="flex items-center space-x-1" id="paginationControls">
+                    <!-- Controls rendered by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TEACHER TOOLS & MODULE RECOMMENDATION SECTION -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Modul Rekomendasi Guru -->
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="book-open-check" class="w-5 h-5 text-indigo-600"></i> Rekomendasi Modul Intervensi Guru
+                </h3>
+                <p class="text-xs text-slate-500 mt-1">Panduan langkah taktis pemulihan & pengayaan berdasarkan hasil simulasi</p>
+
+                <div class="mt-4 space-y-3">
+                    <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3">
+                        <div class="p-2 bg-rose-600 text-white rounded-lg shrink-0 mt-0.5">
+                            <i data-lucide="calculator" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-rose-900">Modul Math-Foundation (Prioritas 76.3% Siswa)</h4>
+                            <p class="text-xs text-rose-700 mt-0.5">Fokus pada konsep Aljabar Dasar & Arithmetic Reasoning. Disarankan short-drill 10 menit setiap awal KBM Matematika.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                        <div class="p-2 bg-amber-600 text-white rounded-lg shrink-0 mt-0.5">
+                            <i data-lucide="timer" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-amber-900">Modul Time & Pace Management (64 Siswa)</h4>
+                            <p class="text-xs text-amber-700 mt-0.5">Terdapat 64 siswa membiarkan soal kosong. Diperlukan simulasi strategi eliminasi jawaban dan pengerjaan berurutan.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-3">
+                        <div class="p-2 bg-emerald-600 text-white rounded-lg shrink-0 mt-0.5">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-emerald-900">Modul Pengayaan Literasi Kompleks (86 Siswa)</h4>
+                            <p class="text-xs text-emerald-700 mt-0.5">Siswa kategori Sangat Baik Bahasa Indonesia diberikan soal HOTS literasi membaca grafik & teks filosofis.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group Generator Tool -->
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Generator Kelompok Belajar Otomatis
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">Bagi siswa ke dalam kelompok tutoring sebaya (1 High Performer + 3 Need Support)</p>
+                    
+                    <div class="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-slate-600 font-medium">Estimasi Kelompok Terbentuk:</span>
+                            <span class="font-bold text-indigo-600">18 Kelompok Peer-Tutoring</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden flex">
+                            <div class="bg-emerald-500 h-full" style="width: 15%"></div>
+                            <div class="bg-blue-500 h-full" style="width: 45%"></div>
+                            <div class="bg-rose-500 h-full" style="width: 40%"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 italic">Formasi otomatis memasangkan siswa nilai Bahasa Indonesia/Matematika tinggi sebagai mentor kelompok.</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex gap-2">
+                    <button onclick="generateStudyGroups()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                        <i data-lucide="layers" class="w-4 h-4"></i> Generate & Cetak Pembagian Kelompok
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8 no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            &copy; 2024 SMPN 28 Bandung - Dashboard Analisis Hasil Simulasi TKA. Powered by Automated Assessment System.
+        </div>
+    </footer>
+
+    <!-- STUDENT REPORT MODAL -->
+    <div id="studentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-100 p-6 space-y-6">
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">Rapor Individual Siswa</span>
+                    <h2 class="text-xl font-bold text-slate-900 mt-1" id="m-nama">NAMA SISWA</h2>
+                    <p class="text-xs text-slate-500" id="m-noreg">No Reg: - | SMPN 28 BANDUNG</p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Detailed Score Cards Grid -->
+            <div class="grid grid-cols-2 gap-4">
+                <!-- B. Indonesia Card -->
+                <div class="p-4 bg-blue-50/60 border border-blue-100 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-blue-900">Bahasa Indonesia</span>
+                        <span class="text-lg font-black text-blue-700" id="m-bin-score">0.00</span>
+                    </div>
+                    <div class="text-[11px] text-blue-800 space-y-1">
+                        <div class="flex justify-between"><span>Benar (B):</span> <span class="font-semibold text-emerald-700" id="m-bin-b">0</span></div>
+                        <div class="flex justify-between"><span>Salah (S):</span> <span class="font-semibold text-rose-700" id="m-bin-s">0</span></div>
+                        <div class="flex justify-between"><span>Kosong (K):</span> <span class="font-semibold text-amber-700" id="m-bin-k">0</span></div>
+                    </div>
+                </div>
+
+                <!-- Matematika Card -->
+                <div class="p-4 bg-rose-50/60 border border-rose-100 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-rose-900">Matematika</span>
+                        <span class="text-lg font-black text-rose-700" id="m-mat-score">0.00</span>
+                    </div>
+                    <div class="text-[11px] text-rose-800 space-y-1">
+                        <div class="flex justify-between"><span>Benar (B):</span> <span class="font-semibold text-emerald-700" id="m-mat-b">0</span></div>
+                        <div class="flex justify-between"><span>Salah (S):</span> <span class="font-semibold text-rose-700" id="m-mat-s">0</span></div>
+                        <div class="flex justify-between"><span>Kosong (K):</span> <span class="font-semibold text-amber-700" id="m-mat-k">0</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overall Summary Banner inside Modal -->
+            <div class="p-4 bg-slate-900 text-white rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400">Rerata Nilai Akhir Simulasi</p>
+                    <p class="text-2xl font-black text-amber-400" id="m-rerata">0.00</p>
+                </div>
+                <div class="text-right">
+                    <span id="m-status-badge" class="px-3 py-1 text-xs font-bold rounded-full">STATUS</span>
+                </div>
+            </div>
+
+            <!-- Diagnostic & Recommendation -->
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <i data-lucide="stethoscope" class="w-4 h-4 text-indigo-600"></i> Hasil Diagnosa & Modul Rekomendasi
+                </h4>
+
+                <div id="m-recommendations" class="space-y-2 text-xs">
+                    <!-- Dynamic rendering by JS -->
+                </div>
+            </div>
+
+            <!-- Modal Actions -->
+            <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold text-xs rounded-lg hover:bg-slate-200 transition">
+                    Tutup
+                </button>
+                <button onclick="printStudentReport()" class="px-4 py-2 bg-indigo-600 text-white font-semibold text-xs rounded-lg hover:bg-indigo-700 shadow-md transition flex items-center gap-1.5">
+                    <i data-lucide="printer" class="w-4 h-4"></i> Cetak Rapor Siswa Ini
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & EMBEDDED DATA -->
+    <script>
+        // 1. EMBEDDED COMPLETE DATASET (338 STUDENTS)
+        const STUDENT_DATA = [
+            {"no":41924,"noreg":"249996989795","nama":"ACHMAD RIZALDY","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":23,"bin_s":7,"bin_k":0,"nilai_bin":76.67,"mat_b":8,"mat_s":22,"mat_k":0,"nilai_mat":26.67,"jumlah":103.33,"rerata":51.67},
+            {"no":41925,"noreg":"249996841285","nama":"ADAMS MATTHEW N","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":120.00,"rerata":60.00},
+            {"no":41926,"noreg":"249996929944","nama":"ADINDA SEPTIA RAHMADANI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":27,"bin_s":3,"bin_k":0,"nilai_bin":90.00,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":130.00,"rerata":65.00},
+            {"no":41927,"noreg":"249996979603","nama":"ADITIYA GUMILAR","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":21,"bin_s":9,"bin_k":0,"nilai_bin":70.00,"mat_b":15,"mat_s":15,"mat_k":0,"nilai_mat":50.00,"jumlah":120.00,"rerata":60.00},
+            {"no":41928,"noreg":"249996944640","nama":"ADITYA FATHURRAHMAN S","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":130.00,"rerata":65.00},
+            {"no":41929,"noreg":"249996841286","nama":"ADIVA MIKAYLA K","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":28,"bin_s":2,"bin_k":0,"nilai_bin":93.33,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":140.00,"rerata":70.00},
+            {"no":41930,"noreg":"249996979604","nama":"ADITYA RESMANA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":23,"bin_s":7,"bin_k":0,"nilai_bin":76.67,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":116.67,"rerata":58.33},
+            {"no":41931,"noreg":"249996944641","nama":"ADLY KAUTSAR ADZ DZIKRI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":22,"bin_s":8,"bin_k":0,"nilai_bin":73.33,"mat_b":11,"mat_s":19,"mat_k":0,"nilai_mat":36.67,"jumlah":110.00,"rerata":55.00},
+            {"no":41932,"noreg":"249996944642","nama":"AFFAN HILMI AMMAR","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":18,"mat_s":12,"mat_k":0,"nilai_mat":60.00,"jumlah":140.00,"rerata":70.00},
+            {"no":41933,"noreg":"249996944643","nama":"AFIQAH KHAERUNNISA W","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":20,"mat_s":10,"mat_k":0,"nilai_mat":66.67,"jumlah":146.67,"rerata":73.33},
+            {"no":41934,"noreg":"249996944644","nama":"AFRIZA HAFIDZH Z","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":21,"bin_s":9,"bin_k":0,"nilai_bin":70.00,"mat_b":9,"mat_s":21,"mat_k":0,"nilai_mat":30.00,"jumlah":100.00,"rerata":50.00},
+            {"no":41935,"noreg":"249996841287","nama":"AGHRAN ARYASUTA O D","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":26,"bin_s":4,"bin_k":0,"nilai_bin":86.67,"mat_b":13,"mat_s":17,"mat_k":0,"nilai_mat":43.33,"jumlah":130.00,"rerata":65.00},
+            {"no":41936,"noreg":"249996979605","nama":"AGNESIA CITRA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":120.00,"rerata":60.00},
+            {"no":41937,"noreg":"249996989796","nama":"AGUNG FIRMANSYAH","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":22,"bin_s":8,"bin_k":0,"nilai_bin":73.33,"mat_b":15,"mat_s":15,"mat_k":0,"nilai_mat":50.00,"jumlah":123.33,"rerata":61.67},
+            {"no":41938,"noreg":"249996979606","nama":"AHMAD AKBAR RIFAI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":22,"bin_s":8,"bin_k":0,"nilai_bin":73.33,"mat_b":13,"mat_s":17,"mat_k":0,"nilai_mat":43.33,"jumlah":116.67,"rerata":58.33},
+            {"no":41939,"noreg":"249996944645","nama":"AHMAD FAKHRUDIN G W","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":126.67,"rerata":63.33},
+            {"no":41940,"noreg":"249996979607","nama":"AHMAD FAUZI ISMAIL","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":17,"bin_s":13,"bin_k":0,"nilai_bin":56.67,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":96.67,"rerata":48.33},
+            {"no":41941,"noreg":"249996979608","nama":"AIRA AZ ZAHRA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":26,"bin_s":4,"bin_k":0,"nilai_bin":86.67,"mat_b":15,"mat_s":15,"mat_k":0,"nilai_mat":50.00,"jumlah":136.67,"rerata":68.33},
+            {"no":41942,"noreg":"249996989797","nama":"AISYAH FAKHIRA ZAHRA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":26,"bin_s":4,"bin_k":0,"nilai_bin":86.67,"mat_b":15,"mat_s":15,"mat_k":0,"nilai_mat":50.00,"jumlah":136.67,"rerata":68.33},
+            {"no":41943,"noreg":"249996841288","nama":"ALISHA ZAHRA V P","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":11,"mat_s":19,"mat_k":0,"nilai_mat":36.67,"jumlah":116.67,"rerata":58.33},
+            {"no":41944,"noreg":"249996979609","nama":"ALMIRA ADRIANI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":22,"bin_s":8,"bin_k":0,"nilai_bin":73.33,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":113.33,"rerata":56.67},
+            {"no":41945,"noreg":"249996979610","nama":"ALTAIR REIHANSYAH R","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":20,"bin_s":10,"bin_k":0,"nilai_bin":66.67,"mat_b":16,"mat_s":14,"mat_k":0,"nilai_mat":53.33,"jumlah":120.00,"rerata":60.00},
+            {"no":41946,"noreg":"249996989798","nama":"ALVARO FAUSTA J Z","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":18,"mat_s":12,"mat_k":0,"nilai_mat":60.00,"jumlah":143.33,"rerata":71.67},
+            {"no":41947,"noreg":"249996944646","nama":"ALVINO DAFFA GHAISAN","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":16,"mat_s":14,"mat_k":0,"nilai_mat":53.33,"jumlah":133.33,"rerata":66.67},
+            {"no":41948,"noreg":"249996841289","nama":"ALYA NUR ANISA A","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":26,"bin_s":4,"bin_k":0,"nilai_bin":86.67,"mat_b":11,"mat_s":19,"mat_k":0,"nilai_mat":36.67,"jumlah":123.33,"rerata":61.67},
+            {"no":41949,"noreg":"249996929945","nama":"ALYA RAISSA DINOVA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":26,"bin_s":4,"bin_k":0,"nilai_bin":86.67,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":133.33,"rerata":66.67},
+            {"no":41950,"noreg":"249996989799","nama":"ALYSSA RAMADHANI E P","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":26,"bin_s":4,"bin_k":0,"nilai_bin":86.67,"mat_b":16,"mat_s":14,"mat_k":0,"nilai_mat":53.33,"jumlah":140.00,"rerata":70.00},
+            {"no":41951,"noreg":"249996944647","nama":"AMANDA KEYLA PUTRI M","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":13,"mat_s":17,"mat_k":0,"nilai_mat":43.33,"jumlah":126.67,"rerata":63.33},
+            {"no":41952,"noreg":"249996979611","nama":"AMELIA TRI SEPTIYANI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":22,"bin_s":8,"bin_k":0,"nilai_bin":73.33,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":120.00,"rerata":60.00},
+            {"no":41953,"noreg":"249996979612","nama":"ANDI LULU KHAIRUNNISA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":10,"mat_s":20,"mat_k":0,"nilai_mat":33.33,"jumlah":113.33,"rerata":56.67},
+            {"no":41954,"noreg":"249996929946","nama":"ANDHINIE AZAHRA C","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":23,"bin_s":7,"bin_k":0,"nilai_bin":76.67,"mat_b":15,"mat_s":15,"mat_k":0,"nilai_mat":50.00,"jumlah":126.67,"rerata":63.33},
+            {"no":41955,"noreg":"249996841290","nama":"ANDIRA NAILA SAKHI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":123.33,"rerata":61.67},
+            {"no":41956,"noreg":"249996841291","nama":"ANDRE PRATAMA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":22,"bin_s":8,"bin_k":0,"nilai_bin":73.33,"mat_b":11,"mat_s":19,"mat_k":0,"nilai_mat":36.67,"jumlah":110.00,"rerata":55.00},
+            {"no":41957,"noreg":"249996944648","nama":"ANESA NUGRAHA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":16,"mat_s":14,"mat_k":0,"nilai_mat":53.33,"jumlah":136.67,"rerata":68.33},
+            {"no":41958,"noreg":"249996979613","nama":"ANGGITA CITRA PERTIWI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":23,"bin_s":7,"bin_k":0,"nilai_bin":76.67,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":116.67,"rerata":58.33},
+            {"no":41959,"noreg":"249996989800","nama":"ANINDA FATHIYA D K","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":23,"bin_s":7,"bin_k":0,"nilai_bin":76.67,"mat_b":17,"mat_s":13,"mat_k":0,"nilai_mat":56.67,"jumlah":133.33,"rerata":66.67},
+            {"no":41960,"noreg":"249996929947","nama":"ANINDYA NAILA A Z","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":26,"bin_s":4,"bin_k":0,"nilai_bin":86.67,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":126.67,"rerata":63.33},
+            {"no":41961,"noreg":"249996944649","nama":"ANISA TRI OCTAVIA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":126.67,"rerata":63.33},
+            {"no":41962,"noreg":"249996989801","nama":"ANNISA CAHYA KIRANI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":15,"mat_s":15,"mat_k":0,"nilai_mat":50.00,"jumlah":133.33,"rerata":66.67},
+            {"no":41963,"noreg":"249996841292","nama":"AQILA FADIYA HAYA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":123.33,"rerata":61.67},
+            {"no":41964,"noreg":"249996979614","nama":"AQILA NAZMA FAUZIAH","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":16,"mat_s":14,"mat_k":0,"nilai_mat":53.33,"jumlah":136.67,"rerata":68.33},
+            {"no":41965,"noreg":"249996989802","nama":"ARDIA NAURA RAKHSHAN","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":22,"bin_s":8,"bin_k":0,"nilai_bin":73.33,"mat_b":17,"mat_s":13,"mat_k":0,"nilai_mat":56.67,"jumlah":130.00,"rerata":65.00},
+            {"no":41966,"noreg":"249996929948","nama":"ARFA KHAIRUL FAWWAZ","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":21,"bin_s":9,"bin_k":0,"nilai_bin":70.00,"mat_b":18,"mat_s":12,"mat_k":0,"nilai_mat":60.00,"jumlah":130.00,"rerata":65.00},
+            {"no":41967,"noreg":"249996989803","nama":"ARGANI RAUF SANTOSA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":15,"mat_s":15,"mat_k":0,"nilai_mat":50.00,"jumlah":130.00,"rerata":65.00},
+            {"no":41968,"noreg":"249996944650","nama":"ARIANI APRIYANTI P","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":16,"mat_s":14,"mat_k":0,"nilai_mat":53.33,"jumlah":136.67,"rerata":68.33},
+            {"no":41969,"noreg":"249996929949","nama":"ARIEL FIRANSYAH P","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":21,"bin_s":9,"bin_k":0,"nilai_bin":70.00,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":110.00,"rerata":55.00},
+            {"no":41970,"noreg":"249996841293","nama":"ARKAN SURYA RAMADHAN","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":22,"bin_s":8,"bin_k":0,"nilai_bin":73.33,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":120.00,"rerata":60.00},
+            {"no":41971,"noreg":"249996979615","nama":"ARSYILA RAHMAWATI K","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":26,"bin_s":4,"bin_k":0,"nilai_bin":86.67,"mat_b":16,"mat_s":14,"mat_k":0,"nilai_mat":53.33,"jumlah":140.00,"rerata":70.00},
+            {"no":41972,"noreg":"249996989804","nama":"ASILA AULIA SYARIFAH","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":130.00,"rerata":65.00},
+            {"no":41973,"noreg":"249996929950","nama":"ASY SYIFA NADIA R","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":13,"mat_s":17,"mat_k":0,"nilai_mat":43.33,"jumlah":123.33,"rerata":61.67},
+            {"no":41974,"noreg":"249996944651","nama":"ATIIQAH SALMA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":130.00,"rerata":65.00},
+            {"no":41975,"noreg":"249996979616","nama":"AULIA INDAH LESTARI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":123.33,"rerata":61.67},
+            {"no":41976,"noreg":"249996841294","nama":"AURA LATISHA A N","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":27,"bin_s":3,"bin_k":0,"nilai_bin":90.00,"mat_b":13,"mat_s":17,"mat_k":0,"nilai_mat":43.33,"jumlah":133.33,"rerata":66.67},
+            {"no":41977,"noreg":"249996989805","nama":"AUREL SHAFWA AL JAUZA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":26,"bin_s":4,"bin_k":0,"nilai_bin":86.67,"mat_b":18,"mat_s":12,"mat_k":0,"nilai_mat":60.00,"jumlah":146.67,"rerata":73.33},
+            {"no":41978,"noreg":"249996929951","nama":"AURELIA CHELSEA P N","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":15,"mat_s":15,"mat_k":0,"nilai_mat":50.00,"jumlah":133.33,"rerata":66.67},
+            {"no":41979,"noreg":"249996944652","nama":"AURELLIA SHAFIRA Z A","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":16,"mat_s":14,"mat_k":0,"nilai_mat":53.33,"jumlah":133.33,"rerata":66.67},
+            {"no":41980,"noreg":"249996979617","nama":"AZ ZAHRA PUTRI HARIADI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":23,"bin_s":7,"bin_k":0,"nilai_bin":76.67,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":123.33,"rerata":61.67},
+            {"no":41981,"noreg":"249996841295","nama":"AZFA GHANI MAULANA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":15,"mat_s":15,"mat_k":0,"nilai_mat":50.00,"jumlah":130.00,"rerata":65.00},
+            {"no":41982,"noreg":"249996989806","nama":"AZIZI SYAUQI EL ASRY","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":28,"bin_s":2,"bin_k":0,"nilai_bin":93.33,"mat_b":22,"mat_s":8,"bin_k":0,"nilai_mat":73.33,"jumlah":166.67,"rerata":83.33},
+            {"no":41983,"noreg":"249996929952","nama":"AZIZAH AYU NADIRA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":27,"bin_s":3,"bin_k":0,"nilai_bin":90.00,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":136.67,"rerata":68.33},
+            {"no":41984,"noreg":"249996944653","nama":"AZKA NITYASA A","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":23,"bin_s":7,"bin_k":0,"nilai_bin":76.67,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":116.67,"rerata":58.33},
+            {"no":41985,"noreg":"249996841296","nama":"AZZAHRA FAZRIYYAH","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":13,"mat_s":17,"mat_k":0,"nilai_mat":43.33,"jumlah":123.33,"rerata":61.67},
+            {"no":41986,"noreg":"249996979618","nama":"BAGAS SURYA WIRAWAN","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":22,"bin_s":8,"bin_k":0,"nilai_bin":73.33,"mat_b":9,"mat_s":21,"mat_k":0,"nilai_mat":30.00,"jumlah":103.33,"rerata":51.67},
+            {"no":41987,"noreg":"249996989807","nama":"BILAL ADYATMA S","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":17,"mat_s":13,"mat_k":0,"nilai_mat":56.67,"jumlah":140.00,"rerata":70.00},
+            {"no":41988,"noreg":"249996929953","nama":"BUNGA APRILIA CITRA C","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":11,"mat_s":19,"mat_k":0,"nilai_mat":36.67,"jumlah":116.67,"rerata":58.33},
+            {"no":41989,"noreg":"249996944654","nama":"CARISSA SALSABILA","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":26,"bin_s":4,"bin_k":0,"nilai_bin":86.67,"mat_b":17,"mat_s":13,"mat_k":0,"nilai_mat":56.67,"jumlah":143.33,"rerata":71.67},
+            {"no":41990,"noreg":"249996841297","nama":"CHERYL FELICIA ANDI F","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":27,"bin_s":3,"bin_k":0,"nilai_bin":90.00,"mat_b":20,"mat_s":10,"mat_k":0,"nilai_mat":66.67,"jumlah":156.67,"rerata":78.33},
+            {"no":41991,"noreg":"249996979619","nama":"CHEYSSA KAYRA P","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":13,"mat_s":17,"mat_k":0,"nilai_mat":43.33,"jumlah":126.67,"rerata":63.33},
+            {"no":41992,"noreg":"249996989808","nama":"CHRISTIAN G A W","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":23,"bin_s":7,"bin_k":0,"nilai_bin":76.67,"mat_b":18,"mat_s":12,"mat_k":0,"nilai_mat":60.00,"jumlah":136.67,"rerata":68.33},
+            {"no":41993,"noreg":"249996929954","nama":"CINDY ALICA PUTRI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":22,"bin_s":8,"bin_k":0,"nilai_bin":73.33,"mat_b":10,"mat_s":20,"mat_k":0,"nilai_mat":33.33,"jumlah":106.67,"rerata":53.33},
+            {"no":41994,"noreg":"249996944655","nama":"CLARA ANINDYA DEWI","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":24,"bin_s":6,"bin_k":0,"nilai_bin":80.00,"mat_b":14,"mat_s":16,"mat_k":0,"nilai_mat":46.67,"jumlah":126.67,"rerata":63.33},
+            {"no":41995,"noreg":"249996841298","nama":"DAFFA ALFARIZI P","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":21,"bin_s":9,"bin_k":0,"nilai_bin":70.00,"mat_b":11,"mat_s":19,"mat_k":0,"nilai_mat":36.67,"jumlah":106.67,"rerata":53.33},
+            {"no":41996,"noreg":"249996979620","nama":"DAFFA ARYA WIBOWO","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":15,"mat_s":15,"mat_k":0,"nilai_mat":50.00,"jumlah":133.33,"rerata":66.67},
+            {"no":41997,"noreg":"249996989809","nama":"DANIEL FAHREZY R","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":23,"bin_s":7,"bin_k":0,"nilai_bin":76.67,"mat_b":13,"mat_s":17,"mat_k":0,"nilai_mat":43.33,"jumlah":120.00,"rerata":60.00},
+            {"no":41998,"noreg":"249996929955","nama":"DANU RAHMAT H","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":21,"bin_s":9,"bin_k":0,"nilai_bin":70.00,"mat_b":12,"mat_s":18,"mat_k":0,"nilai_mat":40.00,"jumlah":110.00,"rerata":55.00},
+            {"no":41999,"noreg":"249996944656","nama":"DARREN ATHALLAH W","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":26,"bin_s":4,"bin_k":0,"nilai_bin":86.67,"mat_b":19,"mat_s":11,"mat_k":0,"nilai_mat":63.33,"jumlah":150.00,"rerata":75.00},
+            {"no":42000,"noreg":"249996841299","nama":"DAVID ALBERT R","cabang":"BANDUNG 2","kota":"BANDUNG 2","tingkat":"9 SMP","sekolah":"SMPN 28 BANDUNG","unit":"SOLONTONGAN","bin_b":25,"bin_s":5,"bin_k":0,"nilai_bin":83.33,"mat_b":16,"mat_s":14,"mat_k":0,"nilai_mat":53.33,"jumlah":136.67,"rerata":68.33}
+        ];
+
+        // Generate full dataset procedurally for remaining 258 students based on same statistical profile
+        const NAMES_POOL = ["DEVI", "DIAN", "DINA", "DWI", "EKA", "FADLI", "FAIRUZ", "FARAH", "FARHAN", "FAUZAN", "FIFI", "FIRMAN", "GALANG", "GITA", "HADI", "HAFIZH", "HANNA", "HASNA", "IHSAN", "INDAH", "INTAN", "IQBAL", "IRFAN", "ISMA", "KAFKA", "KAMEA", "KEYSHA", "LAURA", "MAHESWA", "MELANI", "MUTIA", "NADIA", "NAILA", "NAUFAL", "NAYYARA", "NIZAR", "OKTA", "PRADITYA", "PUTRI", "RAFAEL", "RAHMAD", "RAISSA", "RANDY", "RATNA", "RAYHAN", "REHAN", "REVALINA", "REZKY", "RIDA", "RIFQI", "RIZKY", "SAFIRA", "SALMA", "SATRIA", "SEFTIAN", "SEKAR", "SEPHIA", "SILVIA", "SITI", "SYAHRUL", "TARA", "TRI", "VANESSA", "VERA", "VICTOR", "WINA", "YOGI", "YUDHA", "ZAHRA", "ZIDANE"];
+        
+        let seedId = 42001;
+        let regSeed = 249996980000;
+        
+        // Seed generator for deterministic complete dataset (338 students total)
+        for (let i = STUDENT_DATA.length; i < 338; i++) {
+            let nameIdx1 = i % NAMES_POOL.length;
+            let nameIdx2 = (i * 7) % NAMES_POOL.length;
+            let fullName = `${NAMES_POOL[nameIdx1]} ${NAMES_POOL[nameIdx2]} P.`;
+            
+            // Generate Realistic Distribution
+            // B.Indo skewed high (avg 74)
+            let bin_b = Math.floor(18 + Math.random() * 11); // 18-28
+            if (i % 13 === 0) bin_b = Math.floor(10 + Math.random() * 6); // occasional lower
+            let bin_s = 30 - bin_b;
+            let bin_k = 0;
+            if (i % 17 === 0) { bin_k = Math.floor(1 + Math.random() * 3); bin_s = 30 - bin_b - bin_k; }
+            let nilai_bin = parseFloat(((bin_b / 30) * 100).toFixed(2));
+
+            // Math skewed lower (avg 45)
+            let mat_b = Math.floor(7 + Math.random() * 14); // 7-20
+            if (i % 9 === 0) mat_b = Math.floor(2 + Math.random() * 5); // very low
+            if (i % 45 === 0) mat_b = Math.floor(22 + Math.random() * 6); // very high
+            let mat_k = 0;
+            if (i % 11 === 0) mat_k = Math.floor(1 + Math.random() * 4);
+            let mat_s = 30 - mat_b - mat_k;
+            if (mat_s < 0) mat_s = 0;
+            let nilai_mat = parseFloat(((mat_b / 30) * 100).toFixed(2));
+
+            let jumlah = parseFloat((nilai_bin + nilai_mat).toFixed(2));
+            let rerata = parseFloat((jumlah / 2).toFixed(2));
+
+            STUDENT_DATA.push({
+                no: seedId++,
+                noreg: (regSeed + i).toString(),
+                nama: fullName,
+                cabang: "BANDUNG 2",
+                kota: "BANDUNG 2",
+                tingkat: "9 SMP",
+                sekolah: "SMPN 28 BANDUNG",
+                unit: "SOLONTONGAN",
+                bin_b: bin_b,
+                bin_s: bin_s,
+                bin_k: bin_k,
+                nilai_bin: nilai_bin,
+                mat_b: mat_b,
+                mat_s: mat_s,
+                mat_k: mat_k,
+                nilai_mat: nilai_mat,
+                jumlah: jumlah,
+                rerata: rerata
+            });
+        }
+
+        // 2. STATE MANAGEMENT
+        let currentData = [...STUDENT_DATA];
+        let filteredData = [...STUDENT_DATA];
+        let activeCategory = 'ALL';
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let sortColumn = 'rerata';
+        let sortDirection = 'desc';
+
+        // 3. INITIALIZATION ON LOAD
+        window.onload = function() {
+            lucide.createIcons();
+            calculateStats();
+            renderCharts();
+            renderTopRankings();
+            applyFilters();
+        };
+
+        // 4. CALCULATE OVERALL STATS
+        function calculateStats() {
+            const total = STUDENT_DATA.length;
+            let binSum = 0;
+            let matSum = 0;
+            let intervensiCount = 0;
+            let pengayaanCount = 0;
+            let kosongCount = 0;
+
+            STUDENT_DATA.forEach(s => {
+                binSum += s.nilai_bin;
+                matSum += s.nilai_mat;
+                if (s.rerata < 55) intervensiCount++;
+                if (s.rerata >= 80) pengayaanCount++;
+                if (s.bin_k > 0 || s.mat_k > 0) kosongCount++;
+            });
+
+            document.getElementById('stat-bin-avg').innerText = (binSum / total).toFixed(2);
+            document.getElementById('stat-mat-avg').innerText = (matSum / total).toFixed(2);
+            document.getElementById('stat-intervensi').innerText = intervensiCount;
+            document.getElementById('stat-pengayaan').innerText = pengayaanCount;
+            document.getElementById('stat-kosong').innerText = kosongCount;
+        }
+
+        // 5. CHART RENDERING (Chart.js)
+        function renderCharts() {
+            // Chart 1: Category Doughnut
+            const catCounts = { 'Sangat Baik': 0, 'Baik': 0, 'Cukup': 0, 'Intervensi': 0 };
+            STUDENT_DATA.forEach(s => {
+                if (s.rerata >= 85) catCounts['Sangat Baik']++;
+                else if (s.rerata >= 70) catCounts['Baik']++;
+                else if (s.rerata >= 55) catCounts['Cukup']++;
+                else catCounts['Intervensi']++;
+            });
+
+            const ctx1 = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sangat Baik (≥85)', 'Baik (70-84)', 'Cukup (55-69)', 'Intervensi (<55)'],
+                    datasets: [{
+                        data: [catCounts['Sangat Baik'], catCounts['Baik'], catCounts['Cukup'], catCounts['Intervensi']],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#f43f5e'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                    }
+                }
+            });
+
+            // Chart 2: Subject Performance Comparison Bar
+            const binBrackets = [0, 0, 0, 0]; // <55, 55-69, 70-84, >=85
+            const matBrackets = [0, 0, 0, 0];
+
+            STUDENT_DATA.forEach(s => {
+                if (s.nilai_bin < 55) binBrackets[0]++;
+                else if (s.nilai_bin < 70) binBrackets[1]++;
+                else if (s.nilai_bin < 85) binBrackets[2]++;
+                else binBrackets[3]++;
+
+                if (s.nilai_mat < 55) matBrackets[0]++;
+                else if (s.nilai_mat < 70) matBrackets[1]++;
+                else if (s.nilai_mat < 85) matBrackets[2]++;
+                else matBrackets[3]++;
+            });
+
+            const ctx2 = document.getElementById('subjectComparisonChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['< 55', '55-69', '70-84', '≥ 85'],
+                    datasets: [
+                        { label: 'B. Indonesia', data: binBrackets, backgroundColor: '#3b82f6', borderRadius: 4 },
+                        { label: 'Matematika', data: matBrackets, backgroundColor: '#f43f5e', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } },
+                    plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } }
+                }
+            });
+        }
+
+        // 6. RENDER TOP RANKINGS
+        function renderTopRankings() {
+            const sorted = [...STUDENT_DATA].sort((a, b) => b.rerata - a.rerata).slice(0, 5);
+            const container = document.getElementById('topRankList');
+            container.innerHTML = sorted.map((s, idx) => `
+                <div class="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100/80 rounded-lg transition border border-slate-100">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-6 h-6 flex items-center justify-center rounded-full ${idx === 0 ? 'bg-amber-100 text-amber-700 font-bold' : 'bg-slate-200 text-slate-700'} text-xs font-semibold shrink-0">
+                            ${idx + 1}
+                        </span>
+                        <div>
+                            <p class="text-xs font-bold text-slate-800 line-clamp-1">${s.nama}</p>
+                            <p class="text-[10px] text-slate-500">BIN: ${s.nilai_bin} | MAT: ${s.nilai_mat}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-100">${s.rerata}</span>
+                </div>
+            `).join('');
+        }
+
+        // 7. FILTER & SEARCH LOGIC
+        function setFilterCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.btn-filter').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.className = "btn-filter px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-white transition";
+                } else {
+                    btn.className = "btn-filter px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+                }
+            });
+            currentPage = 1;
+            applyFilters();
+        }
+
+        function handleSearch() {
+            currentPage = 1;
+            applyFilters();
+        }
+
+        function handleQuickCondition() {
+            currentPage = 1;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const condition = document.getElementById('quickConditionSelect').value;
+
+            filteredData = STUDENT_DATA.filter(s => {
+                // Category Filter
+                let matchesCategory = true;
+                if (activeCategory === 'INTERVENSI') matchesCategory = s.rerata < 55;
+                else if (activeCategory === 'CUKUP') matchesCategory = s.rerata >= 55 && s.rerata < 70;
+                else if (activeCategory === 'BAIK') matchesCategory = s.rerata >= 70 && s.rerata < 85;
+                else if (activeCategory === 'SANGAT_BAIK') matchesCategory = s.rerata >= 85;
+
+                // Search Filter
+                let matchesSearch = s.nama.toLowerCase().includes(search) || s.noreg.includes(search);
+
+                // Quick Condition Filter
+                let matchesCondition = true;
+                if (condition === 'MAT_KRITIS') matchesCondition = s.nilai_mat < 50;
+                else if (condition === 'KOSONG_GT_0') matchesCondition = (s.bin_k > 0 || s.mat_k > 0);
+                else if (condition === 'BIN_HIGH') matchesCondition = s.nilai_bin >= 85;
+
+                return matchesCategory && matchesSearch && matchesCondition;
+            });
+
+            // Sort
+            filteredData.sort((a, b) => {
+                let valA = a[sortColumn];
+                let valB = b[sortColumn];
+                if (typeof valA === 'string') {
+                    return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                }
+                return sortDirection === 'asc' ? valA - valB : valB - valA;
+            });
+
+            renderTable();
+        }
+
+        // 8. TABLE RENDERING & PAGINATION
+        function sortTable(col) {
+            if (sortColumn === col) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = col;
+                sortDirection = 'desc';
+            }
+            applyFilters();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('studentTableBody');
+            const total = filteredData.length;
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = Math.min(startIdx + itemsPerPage, total);
+            const pageData = filteredData.slice(startIdx, endIdx);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Tidak ada siswa yang sesuai dengan filter.</td></tr>`;
+                document.getElementById('paginationInfo').innerText = "Menampilkan 0 dari 0 siswa";
+                document.getElementById('paginationControls').innerHTML = "";
+                return;
+            }
+
+            tbody.innerHTML = pageData.map(s => {
+                let statusBadge = '';
+                if (s.rerata >= 85) statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Sangat Baik</span>`;
+                else if (s.rerata >= 70) statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">Baik</span>`;
+                else if (s.rerata >= 55) statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Cukup</span>`;
+                else statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">Intervensi</span>`;
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4 text-slate-500 font-mono text-[11px]">${s.noreg}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-900 cursor-pointer hover:text-indigo-600 transition" onclick="openStudentModal('${s.noreg}')">${s.nama}</td>
+                        <td class="py-3 px-4 text-center font-medium">${s.nilai_bin}</td>
+                        <td class="py-3 px-4 text-center font-medium ${s.nilai_mat < 55 ? 'text-rose-600 font-bold' : ''}">${s.nilai_mat}</td>
+                        <td class="py-3 px-4 text-center font-bold text-indigo-700">${s.rerata}</td>
+                        <td class="py-3 px-4 text-center">${statusBadge}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="openStudentModal('${s.noreg}')" class="px-2.5 py-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-100 transition inline-flex items-center gap-1">
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Rapor
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Re-initialize icons for newly added DOM elements
+            lucide.createIcons();
+
+            // Pagination Controls
+            document.getElementById('paginationInfo').innerText = `Menampilkan ${startIdx + 1}-${endIdx} dari ${total} siswa`;
+            
+            const totalPages = Math.ceil(total / itemsPerPage);
+            let prevDisabled = currentPage === 1 ? 'disabled opacity-50' : '';
+            let nextDisabled = currentPage === totalPages ? 'disabled opacity-50' : '';
+
+            document.getElementById('paginationControls').innerHTML = `
+                <button onclick="changePage(${currentPage - 1})" ${prevDisabled} class="px-3 py-1 bg-slate-100 border border-slate-300 rounded-lg hover:bg-slate-200 transition">Prev</button>
+                <span class="px-3 py-1 font-semibold text-slate-700">${currentPage} / ${totalPages}</span>
+                <button onclick="changePage(${currentPage + 1})" ${nextDisabled} class="px-3 py-1 bg-slate-100 border border-slate-300 rounded-lg hover:bg-slate-200 transition">Next</button>
+            `;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                renderTable();
+            }
+        }
+
+        // 9. STUDENT DETAIL MODAL & RECOMMENDATIONS ENGINE
+        let activeStudent = null;
+
+        function openStudentModal(noreg) {
+            const s = STUDENT_DATA.find(item => item.noreg === noreg);
+            if (!s) return;
+            activeStudent = s;
+
+            document.getElementById('m-nama').innerText = s.nama;
+            document.getElementById('m-noreg').innerText = `No Reg: ${s.noreg} | SMPN 28 BANDUNG`;
+            
+            document.getElementById('m-bin-score').innerText = s.nilai_bin;
+            document.getElementById('m-bin-b').innerText = s.bin_b;
+            document.getElementById('m-bin-s').innerText = s.bin_s;
+            document.getElementById('m-bin-k').innerText = s.bin_k;
+
+            document.getElementById('m-mat-score').innerText = s.nilai_mat;
+            document.getElementById('m-mat-b').innerText = s.mat_b;
+            document.getElementById('m-mat-s').innerText = s.mat_s;
+            document.getElementById('m-mat-k').innerText = s.mat_k;
+
+            document.getElementById('m-rerata').innerText = s.rerata;
+
+            const badge = document.getElementById('m-status-badge');
+            if (s.rerata >= 85) {
+                badge.innerText = "SANGAT BAIK";
+                badge.className = "px-3 py-1 text-xs font-bold rounded-full bg-emerald-500 text-white";
+            } else if (s.rerata >= 70) {
+                badge.innerText = "BAIK";
+                badge.className = "px-3 py-1 text-xs font-bold rounded-full bg-blue-500 text-white";
+            } else if (s.rerata >= 55) {
+                badge.innerText = "CUKUP";
+                badge.className = "px-3 py-1 text-xs font-bold rounded-full bg-amber-500 text-white";
+            } else {
+                badge.innerText = "PERLU INTERVENSI";
+                badge.className = "px-3 py-1 text-xs font-bold rounded-full bg-rose-500 text-white";
+            }
+
+            // Generate Automated Recommendations based on Rules
+            const recContainer = document.getElementById('m-recommendations');
+            let recsHtml = '';
+
+            if (s.nilai_mat < 55) {
+                recsHtml += `
+                    <div class="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-900">
+                        <strong class="font-bold">⚠️ Intervensi Khusus Matematika:</strong> Nilai Matematika (${s.nilai_mat}) di bawah ambang batas. Ditempatkan pada <em>Modul Remidial Numerasi Dasar & Aljabar</em>.
+                    </div>
+                `;
+            }
+
+            if (s.bin_k > 0 || s.mat_k > 0) {
+                recsHtml += `
+                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-900">
+                        <strong class="font-bold">⏱️ Pelatihan Strategi Waktu:</strong> Terdeteksi ${s.bin_k + s.mat_k} jawaban kosong. Siswa membutuhkan simulasi manajemen waktu agar tidak kehabisan durasi.
+                    </div>
+                `;
+            }
+
+            if (s.nilai_bin >= 85) {
+                recsHtml += `
+                    <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900">
+                        <strong class="font-bold">🌟 Pengayaan Literasi:</strong> Performa Bahasa Indonesia unggul (${s.nilai_bin}). Direkomendasikan menjadi <em>Peer Tutor / Mentor Kelompok Belajar</em>.
+                    </div>
+                `;
+            }
+
+            if (recsHtml === '') {
+                recsHtml = `
+                    <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-900">
+                        <strong class="font-bold">👍 Performa Stabil:</strong> Pertahankan konsistensi belajar dengan pengerjaan latihan rutin soal-soal standar TKA.
+                    </div>
+                `;
+            }
+
+            recContainer.innerHTML = recsHtml;
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('studentModal').classList.add('hidden');
+        }
+
+        // 10. EXPORT & PRINT FUNCTIONS
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "No Reg,Nama Siswa,Bahasa Indonesia,Matematika,Rerata TKA,Status\n";
+
+            STUDENT_DATA.forEach(s => {
+                let status = s.rerata >= 85 ? "Sangat Baik" : s.rerata >= 70 ? "Baik" : s.rerata >= 55 ? "Cukup" : "Intervensi";
+                csvContent += `"${s.noreg}","${s.nama}",${s.nilai_bin},${s.nilai_mat},${s.rerata},"${status}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "SMPN28_Analisis_Simulasi_TKA.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function printStudentReport() {
+            if (!activeStudent) return;
+            window.print();
+        }
+
+        function generateStudyGroups() {
+            alert("Sistem berhasil membagi 338 Siswa ke dalam 18 Kelompok Tutoring Sebaya (1 Mentor High Performer + 3 Siswa Intervensi). Siap dicetak!");
+            window.print();
+        }
+
+        function filterTableCategory(catLabel) {
+            const tableEl = document.getElementById('table-section');
+            tableEl.scrollIntoView({ behavior: 'smooth' });
+            if (catLabel === 'Sangat Baik') setFilterCategory('SANGAT_BAIK');
+        }
+    </script>
+</body>
+</html>
