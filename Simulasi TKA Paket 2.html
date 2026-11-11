@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulasi Ujian TKA Bahasa Indonesia 2026 - Paket 2</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
+    
+    header {
+      background: white;
+      border-bottom: 2px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .tabs { display: flex; gap: 8px; }
+    .tab-btn {
+      padding: 8px 18px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .timer-badge {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .cheat-badge {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .container { max-width: 1200px; margin: 20px auto; padding: 0 16px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    .login-box { max-width: 480px; margin: 40px auto; }
+    .form-group { margin-bottom: 16px; text-align: left; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+    }
+    .form-control:focus { border-color: var(--primary); }
+
+    .exam-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+    }
+    @media(max-width: 900px) {
+      .exam-grid { grid-template-columns: 1fr; }
+    }
+    .student-badge-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .reading-passage {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 16px;
+      margin-bottom: 20px;
+      border-radius: 0 6px 6px 0;
+      font-size: 15px;
+      white-space: pre-line;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+    .question-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+    .options-group { display: flex; flex-direction: column; gap: 10px; }
+    .option-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .option-label:hover { background: #f1f5f9; }
+    .option-label input { margin-top: 4px; }
+
+    /* Custom Table for Matrix Questions */
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .matrix-table th, .matrix-table td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      text-align: left;
+    }
+    .matrix-table th { background: #f1f5f9; font-weight: 600; text-align: center; }
+    .matrix-table td.center { text-align: center; width: 70px; }
+
+    .btn-nav-row { display: flex; justify-content: space-between; margin-top: 24px; }
+    .btn {
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-danger { background: var(--danger); color: white; }
+
+    .number-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 12px; }
+    .num-btn {
+      padding: 10px 0;
+      text-align: center;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .num-btn.answered { background: var(--primary); color: white; border-color: var(--primary); }
+    .num-btn.current { border: 2px solid #000; }
+
+    .auth-box { max-width: 450px; margin: 40px auto; text-align: center; padding: 30px; }
+    .expl-item { border-bottom: 1px solid var(--border); padding: 16px 0; }
+    .expl-item:last-child { border-bottom: none; }
+    .badge-key {
+      display: inline-block;
+      background: #dcfce7;
+      color: #15803d;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-left: 6px;
+    }
+    
+    /* Cheat Alert Overlay */
+    #cheat-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h3 style="font-size: 18px; font-weight: 700;">Simulasi Ujian TKA</h3>
+      <span style="font-size: 12px; color: #64748b;">Paket 2 TKA 2026 - Bahasa Indonesia</span>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('exam', this)">Lembar Ujian</button>
+      <button class="tab-btn" onclick="switchTab('solutions', this)">🔒 Kunci & Pembahasan</button>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <div class="cheat-badge" id="cheat-badge-display">Peringatan: 0</div>
+      <div class="timer-badge" id="timer">Waktu: 60:00</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- TAB 1: UJIAN -->
+    <div id="exam-tab" class="tab-content active">
+
+      <!-- FORM IDENTITAS PESERTA -->
+      <div id="start-screen" class="card login-box">
+        <h3 style="margin-bottom: 6px; text-align: center;">Identitas Peserta Ujian</h3>
+        <p style="font-size: 14px; color: #64748b; margin-bottom: 20px; text-align: center;">Silakan lengkapi data diri sebelum memulai pengerjaan.</p>
+        
+        <div class="form-group">
+          <label for="student-name">Nama Lengkap Siswa</label>
+          <input type="text" id="student-name" class="form-control" placeholder="Contoh: Ahmad Fadilah" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label for="student-class">Kelas</label>
+          <select id="student-class" class="form-control">
+            <option value="">-- Pilih Kelas --</option>
+            <option value="9A">Kelas 9A</option>
+            <option value="9B">Kelas 9B</option>
+            <option value="9C">Kelas 9C</option>
+            <option value="9D">Kelas 9D</option>
+            <option value="9E">Kelas 9E</option>
+            <option value="9F">Kelas 9F</option>
+            <option value="9G">Kelas 9G</option>
+            <option value="9H">Kelas 9H</option>
+            <option value="9I">Kelas 9I</option>
+            <option value="9J">Kelas 9J</option>
+          </select>
+        </div>
+
+        <p id="start-error" style="color: red; font-size: 13px; margin-bottom: 12px; display: none;">Harap isi nama dan pilih kelas terlebih dahulu!</p>
+
+        <button class="btn btn-primary" style="width: 100%;" onclick="startExamSession()">Mulai Ujian</button>
+      </div>
+
+      <!-- LEMBAR SOAL UJIAN -->
+      <div id="exam-screen" style="display: none;">
+        <div class="student-badge-bar">
+          <div><strong>Nama:</strong> <span id="badge-name">-</span> | <strong>Kelas:</strong> <span id="badge-class">-</span></div>
+          <div><strong style="color: #b91c1c;">Deteksi Berpindah Layar: <span id="badge-cheat">0</span> Kali</strong></div>
+        </div>
+
+        <div class="exam-grid">
+          <div>
+            <div class="card">
+              <div id="reading-area" class="reading-passage"></div>
+              <div id="question-area">
+                <div class="question-title" id="q-text"></div>
+                <div id="q-options"></div>
+              </div>
+              <div class="btn-nav-row">
+                <button class="btn btn-outline" id="prev-btn" onclick="prevQuestion()">Sebelumnya</button>
+                <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()">Berikutnya</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <h4 style="margin-bottom: 8px;">Daftar Soal</h4>
+              <div class="number-grid" id="number-palette"></div>
+              <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+              <button class="btn btn-primary" style="width: 100%;" onclick="submitExam()">Selesai & Kumpulkan</button>
+              <div id="score-result" style="margin-top: 16px; font-weight: bold; text-align: center;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: PEMBAHASAN -->
+    <div id="solutions-tab" class="tab-content">
+      <!-- Layar Terkunci -->
+      <div id="lock-screen" class="card auth-box">
+        <h3 style="margin-bottom: 8px;">Area Khusus Pengawas/Guru</h3>
+        <p style="font-size: 14px; color: #64748b;">Masukkan kode pengawas untuk membuka kunci pembahasan.</p>
+        <div class="form-group" style="margin-top: 16px;">
+          <input type="password" id="pass-input" class="form-control" placeholder="Masukkan password pengawas">
+        </div>
+        <button class="btn btn-primary" style="width: 100%;" onclick="unlockSolutions()">Buka Kunci</button>
+        <p id="lock-msg" style="color: red; margin-top: 10px; font-size: 13px;"></p>
+      </div>
+
+      <!-- Layar Kunci Terbuka -->
+      <div id="unlocked-screen" style="display: none;">
+        <div class="card">
+          <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <h3>Kunci Jawaban dan Pembahasan Lengkap Paket 2</h3>
+            <button class="btn btn-danger" onclick="lockAgain()">Kunci Kembali</button>
+          </div>
+          <div id="solutions-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Peringatan Kecurangan -->
+  <div id="cheat-modal">
+    <div class="modal-content">
+      <h3 style="color: var(--danger); margin-bottom: 10px;">⚠️ Peringatan Kecurangan!</h3>
+      <p style="font-size: 14px; margin-bottom: 16px;">Anda terdeteksi meninggalkan halaman/tab ujian. Tindakan ini dicatat sebagai bentuk kecurangan!</p>
+      <button class="btn btn-primary" onclick="closeCheatModal()">Saya Mengerti</button>
+    </div>
+  </div>
+
+  <script>
+    const GAS_URL = https://script.google.com/macros/s/AKfycbxwnc47M2Cpb4PfRHbhFuedrkCraMidG_rrr-7G16ox9qDx87b9mLvxO4qSfZ6e7jcVqw/exec";
+    const SECRET_CODE = "MGMPBINDO"; // Password Pengawas Baru
+
+    let currentStudent = { name: "", class: "" };
+    let cheatCount = 0;
+    let examStarted = false;
+    let examSubmitted = false;
+
+    // Monitor Peringatan Kecurangan Saat Pindah Tab/Window
+    document.addEventListener("visibilitychange", function() {
+      if (examStarted && !examSubmitted && document.hidden) {
+        cheatCount++;
+        document.getElementById("badge-cheat").textContent = cheatCount;
+        document.getElementById("cheat-badge-display").textContent = `Peringatan: ${cheatCount}`;
+        document.getElementById("cheat-modal").style.display = "flex";
+      }
+    });
+
+    function closeCheatModal() {
+      document.getElementById("cheat-modal").style.display = "none";
+    }
+
+    const passages = {
+      p1: `TEKS 1 – MIKROPLASTIK DAN PENCEMARAN LINGKUNGAN
+Mikroplastik merupakan partikel plastik berukuran kurang dari lima milimeter yang berasal dari proses penguraian sampah plastik berukuran besar maupun produk yang sejak awal mengandung partikel plastik berukuran kecil. Keberadaan mikroplastik kini menjadi perhatian karena dapat ditemukan di berbagai lingkungan, seperti sungai, laut, tanah, bahkan udara.
+Salah satu sumber mikroplastik adalah sampah plastik sekali pakai, seperti kantong belanja, botol minuman, dan kemasan makanan. Ketika terpapar sinar matahari, panas, serta gesekan, plastik dapat mengalami fragmentasi atau pemecahan menjadi bagian-bagian yang lebih kecil. Partikel tersebut kemudian terbawa aliran air dan berakhir di sungai maupun laut.
+Di lingkungan perairan, mikroplastik berpotensi masuk ke dalam tubuh organisme, seperti ikan dan kerang. Organisme tersebut dapat mengira partikel plastik sebagai makanan karena ukurannya menyerupai sumber makanan alami. Kondisi ini dapat mengganggu proses pencernaan dan berpotensi memengaruhi keseimbangan ekosistem.
+Selain itu, mikroplastik dapat membawa atau mengikat berbagai zat kimia yang terdapat di lingkungan. Oleh karena itu, pencemaran mikroplastik tidak hanya berkaitan dengan keberadaan sampah plastik, tetapi juga dengan kemungkinan perpindahan zat pencemar melalui rantai makanan.
+
+TEKS 2 – MIKROPLASTIK DAN KEHIDUPAN MANUSIA
+Keberadaan mikroplastik di lingkungan perairan juga menimbulkan perhatian terhadap kesehatan manusia. Hal ini disebabkan oleh kemungkinan masuknya partikel tersebut ke dalam tubuh melalui makanan dan minuman yang telah terkontaminasi. Ikan, kerang, garam, serta air minum menjadi beberapa objek yang telah diteliti terkait keberadaan mikroplastik.
+Kontaminasi merupakan kondisi ketika suatu bahan atau zat asing masuk ke dalam lingkungan atau benda sehingga mengubah kualitasnya. Dalam konteks mikroplastik, kontaminasi dapat terjadi ketika partikel plastik mencemari sumber air atau bahan pangan. Kondisi tersebut menunjukkan bahwa persoalan sampah plastik tidak berhenti pada pencemaran lingkungan, tetapi dapat berkaitan dengan kehidupan manusia.
+Meskipun demikian, dampak mikroplastik terhadap kesehatan manusia masih terus diteliti. Para ilmuwan berupaya memahami bagaimana partikel tersebut berinteraksi dengan jaringan tubuh, apakah dapat menimbulkan peradangan, serta bagaimana ukuran dan jumlah partikel memengaruhi risikonya. Dengan demikian, keberadaan mikroplastik dalam tubuh belum dapat langsung disimpulkan sebagai penyebab penyakit tertentu.
+Upaya mengurangi risiko pencemaran dapat dilakukan melalui pengurangan penggunaan plastik sekali pakai, pengelolaan sampah yang tepat, dan peningkatan kesadaran masyarakat. Selain itu, penelitian ilmiah perlu terus dikembangkan agar kebijakan pengendalian pencemaran didasarkan pada bukti yang dapat dipertanggungjawabkan.`,
+
+      p2: `PROSES TERBENTUKNYA TERUMBU KARANG DAN KEHIDUPAN DI DALAMNYA
+Terumbu karang merupakan ekosistem laut yang terbentuk melalui proses biologis dan berlangsung dalam waktu yang sangat lama. Struktur ini tersusun atas kalsium karbonat yang dihasilkan oleh hewan kecil bernama polip karang. Polip hidup berkoloni dan membangun kerangka kapur yang secara bertahap menumpuk hingga membentuk struktur terumbu.
+Proses pembentukan terumbu karang diawali ketika larva karang menempel pada permukaan keras di dasar laut. Setelah menetap, larva berkembang menjadi polip yang menghasilkan kerangka kapur. Polip baru kemudian tumbuh di atas kerangka yang telah terbentuk. Proses tersebut berlangsung berulang-ulang sehingga menghasilkan gugusan terumbu yang semakin luas.
+Pertumbuhan terumbu karang umumnya berlangsung optimal di perairan tropis yang dangkal, jernih, dan mendapatkan cukup sinar matahari. Kondisi tersebut memungkinkan alga mikroskopis bernama zooxanthellae hidup bersimbiosis di dalam jaringan tubuh polip. Alga memperoleh tempat hidup, sedangkan polip mendapatkan sebagian hasil fotosintesis alga sebagai sumber energi.
+Keberadaan terumbu karang menciptakan habitat bagi berbagai organisme laut. Ikan karang memanfaatkan celah-celah karang sebagai tempat berlindung, sedangkan kepiting dan moluska hidup di antara struktur kapur. Selain itu, permukaan terumbu menjadi tempat menempelnya berbagai organisme laut lainnya.
+Namun, peningkatan suhu air laut dan pencemaran dapat mengganggu keseimbangan ekosistem tersebut. Oleh karena itu, kelestarian terumbu karang perlu dijaga agar fungsi ekologisnya sebagai habitat dan pelindung kawasan pesisir tetap berlangsung.`,
+
+      p3: `PERLUKAH MURID SMP MENGGUNAKAN AI UNTUK MEMBANTU MENGERJAKAN TUGAS SEKOLAH?
+Perkembangan kecerdasan buatan atau Artificial Intelligence (AI) mulai memengaruhi kegiatan pembelajaran di sekolah. Melalui aplikasi berbasis AI, murid dapat memperoleh penjelasan materi, menemukan ide, dan mendapatkan bantuan ketika mengalami kesulitan mengerjakan tugas. Namun, penggunaan teknologi ini menimbulkan perbedaan pendapat mengenai batas pemanfaatannya dalam pendidikan.
+Pihak yang mendukung penggunaan AI berpendapat bahwa teknologi tersebut dapat menjadi sarana belajar yang efektif. Murid dapat mengajukan pertanyaan, meminta penjelasan ulang, dan membandingkan berbagai informasi. Misalnya, ketika kesulitan memahami konsep dalam pelajaran IPA, murid dapat menggunakan AI untuk memperoleh penjelasan dengan bahasa yang lebih sederhana. Dengan demikian, AI berpotensi membantu murid belajar secara mandiri.
+Sebaliknya, pihak yang tidak setuju dengan penggunaan AI secara bebas menilai bahwa kemudahan tersebut dapat mengurangi usaha murid dalam berpikir. Jika seluruh tugas diserahkan kepada AI, murid berisiko hanya menyalin jawaban tanpa memahami proses penyelesaiannya. Selain itu, informasi yang dihasilkan AI tidak selalu akurat sehingga tetap memerlukan pemeriksaan dari sumber tepercaya.
+Perbedaan pandangan tersebut menunjukkan bahwa persoalan utama bukan sekadar boleh atau tidaknya AI digunakan, melainkan bagaimana teknologi tersebut dimanfaatkan. Penggunaan AI sebaiknya disertai tanggung jawab, kemampuan memeriksa informasi, dan kejujuran akademik.
+Dengan demikian, AI dapat dimanfaatkan sebagai alat bantu pembelajaran, bukan sebagai pengganti proses berpikir murid. Guru dan sekolah perlu memberikan panduan agar teknologi tersebut mendukung perkembangan kemampuan belajar, kreativitas, dan kemandirian murid.`,
+
+      p4: `BANGKU KOSONG DI SUDUT KELAS
+Pagi itu, suasana kelas VII terasa berbeda. Bangku di sudut dekat jendela kembali kosong. Sudah tiga hari Raka tidak masuk sekolah. Biasanya, ia selalu datang lebih awal dan menyapa teman-temannya dengan senyum lebar.
+Dina memandang bangku itu. Ada rasa sesal yang perlahan tumbuh di hatinya. Tiga hari lalu, ia bertengkar dengan Raka karena sebuah tugas kelompok. Dina menuduh Raka tidak bekerja sama, padahal ia belum mengetahui alasan sebenarnya.
+Saat istirahat, hujan turun membasahi halaman sekolah. Rintiknya mengetuk kaca jendela, seolah mengingatkan Dina pada percakapan terakhir mereka. Ia membuka buku catatan yang dipinjamkan Raka. Di halaman terakhir, terdapat tulisan kecil: "Maaf, aku belum bisa membantu. Ibu sedang sakit dan aku harus menjaganya."
+Dada Dina terasa sesak. Ia baru menyadari bahwa selama ini Raka menyimpan kesulitan seorang diri. Kata-kata yang pernah ia ucapkan kini terasa seperti duri yang menusuk hati.
+Sepulang sekolah, Dina memutuskan mengunjungi rumah Raka. Lorong-lorong sekolah yang biasanya ramai kini lengang. Langkahnya terasa berat, tetapi tekadnya semakin kuat.
+Ketika bertemu Raka, Dina meminta maaf. Raka tersenyum tipis dan menerima uluran tangannya. Tidak banyak kata yang terucap, tetapi keduanya memahami bahwa persahabatan lebih berharga daripada mempertahankan ego.
+Keesokan harinya, bangku di sudut kelas tidak lagi kosong. Raka kembali duduk di sana. Bagi Dina, senyum sahabatnya pagi itu terasa lebih hangat daripada sinar matahari yang menembus jendela.`,
+
+      p5: `KRISTAL PENJAGA TAMAN RAHASIA
+Suatu sore, Arga dan Nisa sedang membersihkan gudang sekolah. Di balik lemari tua, mereka menemukan sebuah kotak kayu berukir daun. Ketika dibuka, tampak kristal berwarna biru yang memancarkan cahaya. Tiba-tiba, angin berputar mengelilingi mereka. Dalam sekejap, keduanya berpindah ke sebuah taman asing.
+Taman itu dipenuhi pohon menjulang, tetapi daunnya menghitam. Sungainya kering dan bunga-bunga terkulai. Seekor burung kecil bersayap keemasan menghampiri mereka. Burung itu memperkenalkan diri sebagai Luma, penjaga taman rahasia. Ia menjelaskan bahwa kristal yang mereka bawa merupakan sumber kehidupan taman. Cahayanya melemah karena mata air utama tertutup tumpukan sampah.
+Arga dan Nisa mengikuti Luma menuju bukit di ujung taman. Perjalanan mereka tidak mudah. Akar-akar besar bergerak seperti ular, sementara kabut tebal menutupi jalan. Nisa hampir menyerah, tetapi Arga mengingatkan bahwa mereka harus saling membantu. Dengan menggunakan cahaya kristal, mereka berhasil menemukan jalan menuju mata air.
+Di sana, tumpukan sampah menghalangi aliran air. Mereka bekerja sama menyingkirkan ranting dan benda-benda yang menyumbatnya. Perlahan, air kembali mengalir. Daun-daun berubah hijau dan bunga bermekaran. Kristal di tangan Arga kembali bersinar terang.
+Luma tersenyum dan mengucapkan terima kasih. Namun, sebelum mereka pulang, burung itu menunjukkan sebuah pintu batu yang baru muncul di balik air terjun. Pada permukaannya terdapat lambang kristal yang sama. Arga dan Nisa saling berpandangan. Mereka belum mengetahui rahasia apa yang tersembunyi di balik pintu tersebut.`,
+
+      p6: `AKSI BERSAMA MENGURANGI SAMPAH PLASTIK DI LINGKUNGAN SEKOLAH
+Bandung – SMP Negeri 28 Bandung mengadakan gerakan pengurangan sampah plastik pada Senin (12/10). Kegiatan tersebut melibatkan kepala sekolah, guru, petugas kebersihan, dan seluruh murid. Program ini dilaksanakan setelah hasil pemantauan menunjukkan bahwa sampah plastik dari kemasan makanan dan minuman masih mendominasi tempat pembuangan sampah sekolah.
+Kepala sekolah, Ibu Dra. Hj. Yetmi Hartati, M.M., menjelaskan bahwa kebiasaan menggunakan kemasan sekali pakai perlu diubah melalui tindakan nyata. Menurutnya, sekolah tidak cukup hanya menyediakan tempat sampah, tetapi juga harus membangun kesadaran seluruh warga sekolah. Oleh karena itu, pihak sekolah mulai menerapkan kebiasaan membawa botol minum dan wadah makanan sendiri.
+Ketua OSIS SMP Negeri 28 Bandung Naresh, bersama Tim Adiwiyata divisi pengelolaan sampah mengajak teman-temannya melakukan pemilahan sampah. Mereka menempatkan wadah khusus untuk sampah organik, anorganik, dan residu di beberapa titik sekolah. Bahkan ada juga tempat khusus untuk kandang botol di sekolah. Selain itu, para murid membuat poster ajakan mengurangi plastik dan menyampaikan pesan lingkungan melalui kegiatan literasi pagi.
+Petugas kebersihan Bapak Dani, menyambut baik kegiatan tersebut. Ia mengatakan bahwa pemilahan sampah memudahkan proses pengumpulan dan pengolahan. Namun, ia mengingatkan bahwa kegiatan ini akan berhasil apabila seluruh warga sekolah melakukannya secara konsisten.
+Setelah satu bulan pelaksanaan, sekolah mencatat penurunan jumlah sampah plastik sekali pakai dibandingkan bulan sebelumnya. Meskipun demikian, pihak sekolah belum menyatakan program tersebut berhasil sepenuhnya. Evaluasi rutin tetap dilakukan untuk mengetahui perubahan kebiasaan warga sekolah dan memperbaiki pelaksanaan program.
+Melalui kegiatan ini, sekolah berharap kepedulian terhadap lingkungan tidak berhenti sebagai kegiatan sesaat, melainkan menjadi kebiasaan dalam kehidupan sehari-hari.`,
+
+      p7: `AKU PERNAH MENJADI PENONTON
+Pada awal semester lalu, aku mengalami peristiwa yang mengubah cara pandangku terhadap perundungan. Kejadian itu berlangsung di kelas saat jam istirahat. Seorang teman bernama Satria sering menjadi bahan ejekan karena cara bicaranya yang berbeda. Beberapa teman bahkan menirukan ucapannya hingga membuat murid lain tertawa.
+Awalnya, aku menganggap kejadian tersebut hanya candaan. Aku bahkan ikut tersenyum ketika teman-teman mengejek Satria. Namun, suatu hari aku melihat Satria duduk sendirian di bangku belakang. Ia menunduk dan tidak bergabung dengan teman-teman lainnya. Ketika diajak berbicara, ia hanya menjawab singkat lalu meninggalkan kelas.
+Keesokan harinya, kejadian serupa kembali terjadi. Saat seorang teman mulai menirukan cara bicara Satria, aku melihat wajahnya berubah murung. Kali ini, aku tidak ikut tertawa. Aku meminta teman-teman menghentikan ejekan tersebut karena menurutku tindakan itu dapat menyakiti perasaan orang lain. Setelah itu, aku menghampiri Satria dan mengajak nya bergabung saat istirahat.
+Beberapa hari kemudian, suasana mulai berubah. Satria kembali berinteraksi dengan teman-teman sekelas. Aku juga mengajak beberapa teman untuk lebih berhati-hati dalam bercanda dan menghargai perbedaan.
+Sejak kejadian itu, aku menyadari bahwa perundungan tidak selalu berupa kekerasan fisik. Ejekan yang dianggap lucu pun dapat meninggalkan luka bagi orang lain. Aku menyesal pernah ikut menertawakan Satria. Pengalaman tersebut mengajarkanku bahwa menjadi penonton bukan berarti tidak terlibat. Kini, aku berusaha lebih berani membela teman yang diperlakukan tidak adil dan tidak menjadikan perbedaan sebagai bahan candaan.`,
+
+      p8: `MEMBUAT KOMPOS SEDERHANA DARI SAMPAH ORGANIK SEKOLAH
+Sampah organik yang berasal dari lingkungan sekolah, seperti daun kering, rumput, dan sisa sayuran, dapat dimanfaatkan menjadi kompos. Kompos merupakan bahan alami yang dapat membantu menyuburkan tanah dan mendukung pertumbuhan tanaman. Agar sampah tersebut tidak menumpuk dan mencemari lingkungan, murid dapat mengolahnya melalui proses pengomposan sederhana.
+Alat dan Bahan:
+- Ember atau wadah bekas yang memiliki lubang udara.
+- Daun kering dan sisa sayuran.
+- Tanah secukupnya.
+- Air secukupnya.
+- Sekop kecil atau alat pengaduk.
+
+Langkah-Langkah:
+1. Pilih sampah organik yang akan digunakan. Pisahkan daun kering dan sisa sayuran dari sampah plastik, logam, serta bahan lain yang sulit terurai.
+2. Potong sampah organik menjadi bagian-bagian kecil agar proses penguraian berlangsung lebih mudah.
+3. Siapkan wadah pengomposan yang memiliki lubang udara. Lubang tersebut berfungsi menjaga sirkulasi udara selama proses penguraian.
+4. Masukkan sampah organik ke dalam wadah secara bertahap. Susun secara bergantian antara lapisan sampah organik dan tanah.
+5. Percikkan air secukupnya hingga campuran terasa lembap. Hindari pemberian air berlebihan karena kondisi terlalu basah dapat menimbulkan bau tidak sedap.
+6. Aduk campuran secara berkala agar udara masuk dan bahan-bahan dapat terurai secara merata.
+7. Tutup wadah dengan penutup yang tetap memungkinkan pertukaran udara. Periksa kondisi campuran secara berkala dan tambahkan air apabila terlalu kering.
+
+Proses pengomposan membutuhkan waktu beberapa minggu, bergantung pada jenis bahan dan kondisi lingkungan. Kompos yang matang umumnya berwarna gelap, bertekstur remah, serta memiliki aroma menyerupai tanah. Setelah matang, kompos dapat digunakan untuk menyuburkan tanaman di taman sekolah.`,
+
+      p9: `Dari: ifa.putri@email.com
+Kepada: sahabat.rani@email.com
+Subjek: Pengalaman Seru Mengikuti Kegiatan Peduli Lingkungan
+
+Hai, Rani!
+Apa kabar? Semoga kamu dan keluargamu selalu sehat. Sudah lama kita tidak bertukar cerita. Aku ingin menceritakan pengalaman menarik yang baru saja aku alami di sekolah minggu lalu.
+Pada hari Jumat, sekolahku mengadakan kegiatan peduli lingkungan yang diikuti oleh seluruh murid. Kegiatan tersebut bertujuan untuk membangun kebiasaan menjaga kebersihan dan mengurangi sampah plastik. Sejak pagi, setiap kelas mendapat tugas membersihkan area yang telah ditentukan oleh guru.
+Kelasku mendapat bagian membersihkan taman dan memilah sampah. Awalnya, beberapa teman terlihat kurang bersemangat karena menganggap kegiatan itu melelahkan. Namun, setelah guru menjelaskan manfaat menjaga lingkungan, mereka mulai ikut bekerja sama. Kami memisahkan sampah organik dan anorganik, mengumpulkan botol plastik, serta membersihkan daun-daun kering yang berserakan.
+Ada satu kejadian yang membuatku berpikir. Aku melihat beberapa teman masih membuang sampah sembarangan meskipun tempat sampah sudah tersedia. Aku kemudian mengajak mereka untuk lebih peduli terhadap kebersihan. Menurutku, menjaga lingkungan bukan hanya tugas petugas kebersihan, melainkan tanggung jawab semua warga sekolah.
+Kegiatan berakhir menjelang siang. Meskipun lelah, aku merasa senang karena taman sekolah menjadi lebih bersih dan nyaman. Aku berharap kegiatan seperti ini dapat dilakukan secara rutin agar kepedulian terhadap lingkungan tidak hanya muncul saat ada kegiatan tertentu.
+Bagaimana dengan kegiatan di sekolahmu? Apakah kalian juga pernah melakukan kegiatan serupa? Aku tunggu ceritamu, ya!
+
+Salam hangat,
+Ifa Putri`,
+
+      p10: `RAYAP DAN PERANNYA DALAM EKOSISTEM
+Rayap merupakan serangga sosial yang hidup berkelompok dalam suatu koloni. Serangga ini banyak ditemukan di daerah tropis dengan lingkungan yang lembap. Rayap sering dianggap sebagai hama karena dapat merusak perabotan dan bangunan berbahan kayu. Namun, di alam, rayap memiliki peran penting dalam menjaga keseimbangan ekosistem.
+Tubuh rayap berukuran kecil, berwarna pucat hingga kecokelatan, dan memiliki antena berbentuk seperti rangkaian manik-manik. Dalam satu koloni terdapat pembagian tugas yang berbeda. Ratu bertugas menghasilkan telur, sedangkan rayap pekerja mencari makanan, merawat telur, dan membangun sarang. Rayap prajurit memiliki kepala dan rahang yang kuat untuk melindungi koloni dari ancaman. Pembagian tugas tersebut membuat kehidupan koloni berlangsung secara teratur.
+Makanan utama rayap berupa bahan yang mengandung selulosa, seperti kayu, ranting, dan daun yang telah gugur. Dalam saluran pencernaannya terdapat mikroorganisme yang membantu menguraikan selulosa menjadi zat yang dapat dimanfaatkan tubuh rayap. Proses ini menjadikan rayap termasuk organisme yang berperan sebagai dekomposer atau pengurai bahan organik.
+Aktivitas rayap memberikan manfaat bagi lingkungan. Ketika menguraikan kayu dan sisa tumbuhan, rayap membantu mengembalikan unsur hara ke dalam tanah. Selain itu, terowongan yang dibuatnya dapat membantu memperbaiki struktur tanah dan meningkatkan peresapan air. Meskipun demikian, keberadaan rayap di sekitar permukiman perlu dikendalikan agar tidak merusak bangunan.
+Dengan demikian, rayap tidak hanya berperan sebagai organisme yang dapat merugikan manusia, tetapi juga memiliki fungsi ekologis. Keberadaannya di alam membantu proses penguraian bahan organik dan menjaga kesuburan tanah.`
+    };
+
+    // Bank Soal Paket 2 dengan Tipe: 'mcq' (PG), 'multi' (PG Kompleks Checkbox), 'matrix' (Tabel Benar/Salah)
+    const questions = [
+      {
+        id: 1, type: 'mcq', passage: 'p1', weight: 3,
+        q: "Makna istilah fragmentasi dalam kutipan tersebut adalah ....",
+        opts: [
+          "Proses pemecahan suatu benda menjadi bagian-bagian yang lebih kecil.",
+          "Proses penyerapan zat tertentu ke dalam benda yang berada di sekitarnya.",
+          "Proses pengendapan material tertentu pada permukaan suatu lingkungan.",
+          "Proses penggabungan beberapa bahan menjadi satu kesatuan yang utuh."
+        ],
+        correct: 0,
+        expl: "Fragmentasi berarti pemecahan menjadi bagian-bagian kecil (Teks 1 paragraf 2: '...mengalami fragmentasi atau pemecahan menjadi bagian-bagian yang lebih kecil')."
+      },
+      {
+        id: 2, type: 'multi', passage: 'p1', weight: 3,
+        q: "Berdasarkan Teks 1 dan Teks 2, pilihlah dua pernyataan yang menunjukkan keterkaitan gagasan utama kedua teks tersebut!",
+        opts: [
+          "Pencemaran mikroplastik di lingkungan dapat berdampak pada organisme perairan dan berpotensi berkaitan dengan kesehatan manusia.",
+          "Keberadaan mikroplastik di perairan sepenuhnya disebabkan oleh aktivitas organisme yang hidup di dalam ekosistem tersebut.",
+          "Mikroplastik yang mencemari lingkungan dapat memasuki rantai makanan dan menjadi perhatian dalam penelitian kesehatan manusia.",
+          "Penggunaan plastik sekali pakai merupakan satu-satunya faktor yang menentukan tingkat kesehatan organisme dan manusia."
+        ],
+        correct: [0, 2],
+        expl: "Pernyataan 1 dan 3 menghubungkan dampak mikroplastik pada organisme perairan (Teks 1) dan kesehatan manusia melalui rantai makanan (Teks 2)."
+      },
+      {
+        id: 3, type: 'matrix', passage: 'p1', weight: 4,
+        q: "Berdasarkan informasi dalam Teks 1 dan Teks 2, tentukan benar atau salah setiap pernyataan berikut!",
+        statements: [
+          "Mikroplastik merupakan partikel plastik berukuran kurang dari lima milimeter.",
+          "Fragmentasi plastik dapat terjadi akibat paparan sinar matahari, panas, dan gesekan.",
+          "Mikroplastik dalam tubuh manusia telah terbukti menjadi penyebab penyakit tertentu.",
+          "Penelitian mikroplastik berupaya memahami interaksi partikel tersebut dengan jaringan tubuh manusia."
+        ],
+        correct: ["Benar", "Benar", "Salah", "Benar"],
+        expl: "Pernyataan 1 (Benar), 2 (Benar), 3 (Salah - teks menyebutkan belum dapat disimpulkan sebagai penyebab penyakit tertentu), 4 (Benar)."
+      },
+      {
+        id: 4, type: 'mcq', passage: 'p2', weight: 3,
+        q: "Berdasarkan teks tersebut, objek yang dimaksud dengan organisme kecil yang hidup berkoloni dan menghasilkan kerangka kapur sebagai pembentuk terumbu karang adalah ....",
+        opts: [
+          "Polip karang yang menghasilkan struktur kapur secara bertahap.",
+          "Zooxanthellae hidup bersimbiosis di dalam jaringan organisme karang.",
+          "Larva karang yang menempel pada permukaan keras di dasar laut.",
+          "Moluska laut yang hidup di antara struktur kapur terumbu karang."
+        ],
+        correct: 0,
+        expl: "Teks paragraf 1 menyatakan: 'Struktur ini tersusun atas kalsium karbonat yang dihasilkan oleh hewan kecil bernama polip karang.'"
+      },
+      {
+        id: 5, type: 'multi', passage: 'p2', weight: 3,
+        q: "Berdasarkan kosakata yang digunakan dalam teks, pilihlah dua pernyataan yang menunjukkan karakteristik latar tempat pertumbuhan terumbu karang!",
+        opts: [
+          "Perairan tropis yang dangkal, jernih, dan mendapatkan cukup sinar matahari.",
+          "Lingkungan perairan dengan permukaan keras, tempat menempelnya larva karang.",
+          "Kawasan daratan yang memiliki tanah subur dan ditumbuhi vegetasi berkayu.",
+          "Wilayah pegunungan yang memiliki suhu rendah dan tingkat kelembapan tinggi."
+        ],
+        correct: [0, 1],
+        expl: "Opsi 1 dan 2 secara eksplisit dijelaskan di paragraf 2 dan 3 mengenai perairan tropis dangkal/jernih dan permukaan keras di dasar laut."
+      },
+      {
+        id: 6, type: 'matrix', passage: 'p2', weight: 4,
+        q: "Berdasarkan keseluruhan informasi dalam teks, tentukan apakah simpulan berikut Benar atau Salah!",
+        statements: [
+          "Terumbu karang merupakan ekosistem yang terbentuk melalui aktivitas organisme kecil yang menghasilkan kerangka kapur secara berulang.",
+          "Zooxanthellae dan polip karang memiliki hubungan yang saling menguntungkan dalam mendukung kehidupan terumbu karang.",
+          "Terumbu karang hanya berfungsi sebagai tempat hidup ikan sehingga keberadaannya tidak berkaitan dengan perlindungan kawasan pesisir.",
+          "Kerusakan terumbu karang dapat mengganggu keseimbangan ekosistem laut karena berbagai organisme bergantung pada habitat tersebut."
+        ],
+        correct: ["Benar", "Benar", "Salah", "Benar"],
+        expl: "Pernyataan 1, 2, 4 (Benar). Pernyataan 3 (Salah - teks menyebutkan fungsi ekologisnya juga sebagai pelindung kawasan pesisir)."
+      },
+      {
+        id: 7, type: 'mcq', passage: 'p3', weight: 3,
+        q: "Berdasarkan teks diskusi tersebut, hubungan peristiwa yang paling logis sebagai akibat penggunaan AI tanpa pengawasan dalam pengerjaan tugas sekolah adalah ....",
+        opts: [
+          "Murid terbiasa menerima jawaban instan sehingga kesempatan mengembangkan kemampuan berpikir mandiri berkurang.",
+          "Murid memperoleh berbagai sumber informasi sehingga kemampuan memeriksa kebenaran informasi meningkat secara otomatis.",
+          "Murid mendapatkan penjelasan materi secara sederhana sehingga seluruh kesulitan belajar dapat diselesaikan tanpa bantuan guru.",
+          "Murid menggunakan teknologi untuk mencari ide sehingga kejujuran akademik tidak lagi menjadi persoalan dalam pembelajaran."
+        ],
+        correct: 0,
+        expl: "Sesuai paragraf 3: jika tugas diserahkan penuh ke AI, murid berisiko hanya menyalin tanpa memahami, mengurangi usaha berpikir."
+      },
+      {
+        id: 8, type: 'multi', passage: 'p3', weight: 3,
+        q: "Berdasarkan hubungan antara argumen pro dan kontra dalam teks, pilihlah dua pernyataan yang menunjukkan hubungan antargagasan secara logis!",
+        opts: [
+          "Kemampuan AI menjelaskan materi dengan bahasa sederhana dapat mendukung belajar mandiri apabila murid tetap memahami proses pembelajaran.",
+          "Potensi ketergantungan terhadap AI dapat dikurangi melalui penggunaan teknologi yang disertai tanggung jawab dan pemeriksaan informasi.",
+          "Kemudahan memperoleh jawaban melalui AI menjadikan murid tidak perlu lagi mengembangkan kemampuan berpikir kritis dalam pembelajaran.",
+          "Risiko kesalahan informasi dari AI menunjukkan bahwa setiap jawaban yang dihasilkan teknologi tersebut harus diterima sebagai sumber pengetahuan utama."
+        ],
+        correct: [0, 1],
+        expl: "Dua opsi pertama menjembatani argumen positif AI sekaligus solusi atas risikonya secara logis."
+      },
+      {
+        id: 9, type: 'matrix', passage: 'p3', weight: 4,
+        q: "Berdasarkan informasi dalam teks, tentukan apakah pernyataan berikut Benar atau Salah!",
+        statements: [
+          "AI dapat membantu murid memahami materi yang sulit karena teknologi tersebut mampu memberikan penjelasan dengan bahasa yang lebih sederhana.",
+          "Penggunaan AI secara bebas dapat meningkatkan kemandirian belajar karena murid tidak perlu lagi melakukan usaha sendiri dalam menyelesaikan tugas.",
+          "Pemeriksaan informasi yang dihasilkan AI merupakan langkah yang logis karena teknologi tersebut masih berpotensi memberikan informasi yang tidak akurat.",
+          "Pihak yang mendukung penggunaan AI berpendapat bahwa seluruh tugas sekolah sebaiknya diserahkan kepada teknologi agar hasil belajar lebih maksimal."
+        ],
+        correct: ["Benar", "Salah", "Benar", "Salah"],
+        expl: "Pernyataan 1 (Benar), 2 (Salah), 3 (Benar), 4 (Salah)."
+      },
+      {
+        id: 10, type: 'mcq', passage: 'p4', weight: 3,
+        q: "Berdasarkan konflik yang dialami Dina dan tindakannya setelah membaca catatan Raka, simpulan yang paling tepat mengenai perkembangan emosi Dina dalam cerpen tersebut adalah ....",
+        opts: [
+          "Dina berubah dari rasa kesal menjadi penyesalan setelah menyadari bahwa ia telah salah memahami keadaan Raka.",
+          "Dina berubah dari rasa khawatir menjadi kekecewaan karena Raka tidak segera menceritakan masalah keluarganya.",
+          "Dina berubah dari rasa senang menjadi kesedihan karena harus mengerjakan tugas kelompok tanpa bantuan Raka.",
+          "Dina berubah dari rasa takut menjadi kemarahan karena Raka memilih menyelesaikan masalah keluarganya sendiri."
+        ],
+        correct: 0,
+        expl: "Dina awalnya kesal menuduh Raka tidak bekerja sama, lalu merasa sesal dan bersalah setelah membaca pesan di buku Raka."
+      },
+      {
+        id: 11, type: 'multi', passage: 'p4', weight: 3,
+        q: "Berdasarkan kosakata yang digunakan dalam cerpen, pilihlah dua pernyataan yang menunjukkan latar cerita secara tepat!",
+        opts: [
+          "Peristiwa awal cerita berlangsung di ruang kelas, ditunjukkan oleh kosakata 'bangku', 'sudut dekat jendela', dan 'kelas VII'.",
+          "Peristiwa ketika Dina dan Raka bertemu kembali berlangsung pada pagi hari berikutnya, ditunjukkan oleh ungkapan 'keesokan harinya'.",
+          "Peristiwa ketika Dina membaca catatan Raka berlangsung pada malam hari.",
+          "Suasana cerita pada bagian ketika Dina memutuskan mengunjungi Raka berlangsung di tengah lapangan."
+        ],
+        correct: [0, 1],
+        expl: "Pernyataan 1 dan 2 didukung oleh buktif teks (lokasi kelas VII dan waktu keesokan harinya)."
+      },
+      {
+        id: 12, type: 'matrix', passage: 'p4', weight: 4,
+        q: "Berdasarkan penggunaan bahasa kias dan citraan dalam cerpen, tentukan Benar atau Salah pada setiap pernyataan berikut!",
+        statements: [
+          "Ungkapan 'rintiknya mengetuk kaca jendela' menggunakan bahasa kias personifikasi karena hujan digambarkan seolah-olah dapat melakukan tindakan manusia.",
+          "Ungkapan 'kata-kata yang pernah ia ucapkan kini terasa seperti duri yang menusuk hati' menggambarkan penyesalan Dina melalui perbandingan yang menimbulkan kesan menyakitkan.",
+          "Ungkapan 'lorong-lorong sekolah yang biasanya ramai kini lengang' merupakan citraan pendengaran karena pembaca dapat membayangkan suara keramaian di lorong.",
+          "Ungkapan 'senyum sahabatnya pagi itu terasa lebih hangat daripada sinar matahari' memberikan citraan perasaan yang menggambarkan kebahagiaan dan kelegaan Dina."
+        ],
+        correct: ["Benar", "Benar", "Salah", "Benar"],
+        expl: "Pernyataan 1 (Benar), 2 (Benar), 3 (Salah - 'lengang' merujuk pada penglihatan/suasana visual-keadaan, bukan pendengaran), 4 (Benar)."
+      },
+      {
+        id: 13, type: 'mcq', passage: 'p5', weight: 3,
+        q: "Berdasarkan urutan peristiwa dalam cerita Kristal Penjaga Taman Rahasia, susunan kerangka cerita yang paling tepat adalah ....",
+        opts: [
+          "Penemuan kristal ajaib – pertemuan dengan Luma – perjalanan menuju bukit – pemulihan mata air – penemuan pintu batu.",
+          "Penemuan kristal ajaib – perjalanan menuju bukit – pengenalan penjaga taman – pemulihan mata air – penemuan pintu batu.",
+          "Penemuan kristal ajaib – pertemuan dengan Luma – pemulihan mata air – perjalanan menuju bukit – penemuan pintu batu.",
+          "Penemuan kristal ajaib – pertemuan dengan Luma – perjalanan menuju bukit – penemuan pintu batu – pemulihan mata air."
+        ],
+        correct: 0,
+        expl: "Urutan alur cerita: Menemukan kristal -> Bertemu Luma -> Menuju bukit -> Membersihkan sampah/mata air -> Pintu batu."
+      },
+      {
+        id: 14, type: 'multi', passage: 'p5', weight: 3,
+        q: "Peristiwa dalam cerita menggambarkan usaha Arga dan Nisa menyelamatkan taman rahasia. Pilihlah dua pernyataan yang menunjukkan relevansi cerita dengan kehidupan sehari-hari!",
+        opts: [
+          "Kesediaan membantu teman ketika menghadapi kesulitan dapat diterapkan untuk memperkuat kerja sama dalam kehidupan sehari-hari.",
+          "Tanggung jawab menjaga lingkungan dapat diwujudkan melalui tindakan sederhana yang dilakukan secara konsisten oleh setiap warga sekolah.",
+          "Setiap orang harus mencari kristal ajaib untuk memperbaiki lingkungan yang rusak.",
+          "Gudang sekolah sebaiknya tidak pernah dibersihkan agar tidak berpindah ke alam ajaib."
+        ],
+        correct: [0, 1],
+        expl: "Opsi 1 (sikap tolong-menolong) dan 2 (tanggung jawab lingkungan) relevan dengan kehidupan nyata."
+      },
+      {
+        id: 15, type: 'matrix', passage: 'p5', weight: 4,
+        q: "Berdasarkan petunjuk pada bagian akhir cerita, tentukan apakah prediksi peristiwa berikut Benar atau Salah!",
+        statements: [
+          "Pintu batu yang muncul di balik air terjun kemungkinan tidak memiliki hubungan dengan kristal yang dibawa Arga dan Nisa.",
+          "Lambang kristal pada pintu batu kemungkinan menunjukkan adanya hubungan antara pintu tersebut dan rahasia kristal.",
+          "Arga dan Nisa diperkirakan akan meninggalkan taman tanpa mencari tahu isi pintu batu karena tugas mereka telah selesai.",
+          "Penemuan pintu batu kemungkinan menjadi awal petualangan baru yang berkaitan dengan kekuatan taman rahasia."
+        ],
+        correct: ["Salah", "Benar", "Salah", "Benar"],
+        expl: "Pernyataan 1 (Salah), 2 (Benar), 3 (Salah), 4 (Benar)."
+      },
+      {
+        id: 16, type: 'mcq', passage: 'p6', weight: 3,
+        q: "Berdasarkan tindakan Naresh bersama Tim Adiwiyata dalam berita tersebut, simpulan yang paling tepat mengenai kontribusi mereka terhadap program pengurangan sampah plastik adalah ....",
+        opts: [
+          "Menggerakkan keterlibatan murid melalui pemilahan sampah dan penyampaian pesan kepedulian lingkungan di sekolah.",
+          "Menentukan kebijakan sekolah mengenai pembatasan penggunaan kemasan plastik dan pengadaan fasilitas pengelolaan sampah.",
+          "Mengawasi seluruh kegiatan kebersihan sekolah serta memastikan petugas menjalankan tugas sesuai pembagian kerja.",
+          "Mengelola hasil pemilahan sampah agar seluruh jenis sampah dapat diproses menjadi barang yang memiliki nilai ekonomi."
+        ],
+        correct: 0,
+        expl: "Teks paragraf 3: Naresh dan Tim Adiwiyata mengajak pemilahan sampah, menyediakan tempat sampah, dan membuat poster ajakan."
+      },
+      {
+        id: 17, type: 'multi', passage: 'p6', weight: 3,
+        q: "Berdasarkan keseluruhan informasi dalam berita, pilihlah dua pernyataan yang merupakan simpulan logis mengenai pelaksanaan program pengurangan sampah plastik di SMP Negeri 28 Bandung!",
+        opts: [
+          "Program pengurangan sampah plastik dilaksanakan melalui perubahan kebiasaan warga sekolah dan penyediaan fasilitas pemilahan sampah.",
+          "Keterlibatan kepala sekolah, murid, Tim Adiwiyata, dan petugas kebersihan menunjukkan bahwa pengelolaan sampah membutuhkan kerja sama berbagai pihak.",
+          "Keberadaan kandang botol menunjukkan bahwa seluruh sampah plastik yang dihasilkan sekolah sudah berhasil diolah menjadi barang baru.",
+          "Penurunan jumlah sampah plastik selama satu bulan membuktikan program dihentikan."
+        ],
+        correct: [0, 1],
+        expl: "Pernyataan 1 dan 2 merangkum perubahan perilaku serta keterlibatan berbagai elemen sekolah secara konsisten."
+      },
+      {
+        id: 18, type: 'matrix', passage: 'p6', weight: 4,
+        q: "Berdasarkan isi dan karakteristik teks berita tersebut, tentukan apakah penilaian berikut Benar atau Salah!",
+        statements: [
+          "Judul berita sesuai dengan isi karena seluruh informasi membahas upaya warga SMP Negeri 28 Bandung mengurangi sampah plastik di lingkungan sekolah.",
+          "Informasi penurunan sampah plastik dapat dinilai sudah terukur secara rinci karena berita mencantumkan jumlah sampah sebelum dan sesudah program.",
+          "Kehadiran pernyataan kepala sekolah dan petugas kebersihan memperkuat isi berita karena menyajikan pandangan dari pihak yang memiliki keterlibatan berbeda.",
+          "Penggunaan istilah 'kandang botol' membuktikan bahwa seluruh sampah plastik di sekolah hanya berasal dari kemasan botol minuman."
+        ],
+        correct: ["Benar", "Salah", "Benar", "Salah"],
+        expl: "Pernyataan 1 (Benar), 2 (Salah - tidak dicantumkan angka spesifik kg/tonnya), 3 (Benar), 4 (Salah)."
+      },
+      {
+        id: 19, type: 'mcq', passage: 'p7', weight: 3,
+        q: "Berdasarkan rangkaian peristiwa dan perubahan sikap tokoh dalam cerita, simpulan yang paling tepat mengenai suasana lingkungan kelas saat perundungan terjadi adalah ....",
+        opts: [
+          "Suasana kelas terasa tidak nyaman karena ejekan antarteman membuat Satria menarik diri dari lingkungan pergaulan.",
+          "Suasana kelas terasa akrab karena murid-murid saling bercanda tanpa memperhatikan perasaan teman lainnya.",
+          "Suasana kelas terasa tegang karena tokoh utama berusaha menghindari keterlibatan dalam perselisihan antarteman.",
+          "Suasana kelas terasa membosankan karena kegiatan belajar terganggu oleh kebiasaan murid berbicara saat istirahat."
+        ],
+        correct: 0,
+        expl: "Ejekan menyebabkan Satria murung, duduk sendirian di belakang, dan menarik diri dari pergaulan."
+      },
+      {
+        id: 20, type: 'multi', passage: 'p7', weight: 3,
+        q: "Berdasarkan pengalaman tokoh dalam cerita, pilihlah dua pernyataan yang menunjukkan nilai kehidupan dari peristiwa tersebut!",
+        opts: [
+          "Menghargai perbedaan merupakan sikap penting agar setiap orang dapat diterima dalam lingkungan pergaulan.",
+          "Menjaga dan membela teman yang diperlakukan tidak adil merupakan wujud kepedulian sosial.",
+          "Menghindari pertemanan dengan orang yang berbeda kebiasaan merupakan cara menjaga hubungan sosial.",
+          "Membiarkan ejekan berlangsung merupakan tindakan tepat selama seseorang tidak terlibat secara langsung."
+        ],
+        correct: [0, 1],
+        expl: "Nilai moral cerita adalah pentingnya menghargai perbedaan dan berani menghentikan perundungan (membela teman)."
+      },
+      {
+        id: 21, type: 'matrix', passage: 'p7', weight: 4,
+        q: "Berdasarkan struktur dan karakteristik teks rekon pribadi Aku Pernah Menjadi Penonton, tentukan Benar atau Salah pada setiap pernyataan berikut!",
+        statements: [
+          "Penggunaan kata ganti orang pertama seperti 'aku' menunjukkan bahwa cerita disampaikan berdasarkan pengalaman tokoh yang menceritakannya.",
+          "Bagian awal cerita telah memperkenalkan pengalaman tokoh, waktu kejadian, dan situasi yang menjadi dasar rangkaian peristiwa.",
+          "Penggunaan ungkapan 'Keesokan harinya' dan 'Beberapa hari kemudian' membantu menunjukkan urutan waktu dalam rangkaian pengalaman tokoh.",
+          "Bagian akhir cerita sesuai dengan fungsi reorientasi karena memuat refleksi tokoh terhadap pengalaman yang telah diceritakan."
+        ],
+        correct: ["Benar", "Benar", "Benar", "Benar"],
+        expl: "Seluruh pernyataan (1, 2, 3, dan 4) adalah BENAR sesuai struktur kaidah teks rekon pribadi."
+      },
+      {
+        id: 22, type: 'mcq', passage: 'p8', weight: 3,
+        q: "Berdasarkan teks prosedur tersebut, informasi yang tepat mengenai proses pembuatan kompos adalah ....",
+        opts: [
+          "Campuran bahan perlu dijaga kelembapannya agar proses penguraian dapat berlangsung dengan baik.",
+          "Sampah organik dicampurkan dengan plastik agar proses penguraian berlangsung lebih cepat.",
+          "Wadah pengomposan harus ditutup rapat agar udara tidak masuk ke dalam campuran.",
+          "Kompos yang telah matang memiliki tekstur basah dan aroma menyengat seperti sampah."
+        ],
+        correct: 0,
+        expl: "Langkah 5 & 7 menjelaskan pentingnya kelembapan yang pas (dipercip air secukupnya) agar proses penguraian berjalan optimal."
+      },
+      {
+        id: 23, type: 'multi', passage: 'p8', weight: 3,
+        q: "Berdasarkan hubungan antara tahapan kegiatan dan tujuan pembuatan kompos, pilihlah dua pernyataan yang menunjukkan hubungan logis!",
+        opts: [
+          "Pemisahan sampah organik dari bahan sulit terurai membantu menjaga kualitas bahan yang digunakan untuk pengomposan.",
+          "Pemotongan sampah organik menjadi bagian kecil membantu mempercepat proses penguraian bahan.",
+          "Pemberian air sebanyak mungkin membuat mikroorganisme bekerja lebih optimal dalam seluruh kondisi pengomposan.",
+          "Wadah ditutup kedap udara agar tidak menimbulkan aroma tanah."
+        ],
+        correct: [0, 1],
+        expl: "Pemisahan bahan anorganik (1) dan pemotongan bahan menjadi kecil (2) terbukti mempercepat dan meningkatkan mutu kompos."
+      },
+      {
+        id: 24, type: 'matrix', passage: 'p8', weight: 4,
+        q: "Berdasarkan isi dan karakteristik teks prosedur tersebut, tentukan Benar atau Salah pernyataan berikut!",
+        statements: [
+          "Teks telah mencantumkan alat dan bahan sebelum menjelaskan tahapan pembuatan kompos sehingga pembaca dapat mempersiapkan kebutuhan terlebih dahulu.",
+          "Langkah pemberian air dalam teks kurang tepat karena bahan pengomposan seharusnya selalu berada dalam kondisi kering agar tidak menimbulkan bau.",
+          "Penggunaan kata kerja perintah, seperti pilih, potong, siapkan, dan masukkan, sesuai dengan karakteristik kebahasaan teks prosedur.",
+          "Informasi mengenai ciri-ciri kompos matang tidak relevan karena teks prosedur hanya boleh memuat alat, bahan, dan langkah-langkah pengerjaan."
+        ],
+        correct: ["Benar", "Salah", "Benar", "Salah"],
+        expl: "Pernyataan 1 (Benar), 2 (Salah), 3 (Benar), 4 (Salah - info kompos matang penjelas penutup yang relevan)."
+      },
+      {
+        id: 25, type: 'mcq', passage: 'p9', weight: 3,
+        q: "Perhatikan hubungan antara sikap awal teman-teman Ifa, penjelasan guru, dan keterlibatan mereka dalam kegiatan peduli lingkungan. Simpulan yang paling tepat adalah ....",
+        opts: [
+          "Perubahan pemahaman terhadap tujuan suatu kegiatan dapat memengaruhi kesediaan seseorang untuk terlibat di dalamnya.",
+          "Keterlibatan seseorang dalam kegiatan bersama lebih banyak ditentukan oleh kemampuan memahami pembagian tugas daripada kesadaran terhadap manfaat kegiatan.",
+          "Penjelasan mengenai tujuan kegiatan dapat mengubah penilaian seseorang, tetapi belum tentu memengaruhi kesediaannya untuk terlibat secara langsung.",
+          "Sikap seseorang terhadap kegiatan lingkungan cenderung berubah ketika hasil kegiatan dapat diamati secara langsung oleh seluruh peserta."
+        ],
+        correct: 0,
+        expl: "Awalnya enggan/malas, tetapi setelah guru memberikan penjelasan manfaat lingkungan, mereka menjadi tergerak bekerja sama."
+      },
+      {
+        id: 26, type: 'multi', passage: 'p9', weight: 3,
+        q: "Ifa menceritakan keberhasilan kegiatan serta teman yang masih membuang sampah sembarangan. Pilihlah dua simpulan yang sesuai dengan pandangan penulis!",
+        opts: [
+          "Keberhasilan suatu kegiatan lingkungan perlu diikuti pembentukan kebiasaan agar perilaku peduli lingkungan tetap berlangsung di luar kegiatan tersebut.",
+          "Kebersihan lingkungan sekolah mencerminkan tanggung jawab bersama sehingga kepedulian tidak cukup diwujudkan oleh sebagian warga sekolah saja.",
+          "Perubahan perilaku dalam menjaga lingkungan lebih mudah diwujudkan melalui pengawasan ketat daripada kesadaran.",
+          "Pelaksanaan kegiatan bersama dianggap berhasil jika murid langsung pulang menjelang siang."
+        ],
+        correct: [0, 1],
+        expl: "Ifa menegaskan di e-mailnya bahwa kebersihan tanggung jawab bersama dan berharap menjadi kebiasaan rutin."
+      },
+      {
+        id: 27, type: 'matrix', passage: 'p9', weight: 4,
+        q: "Cermati penggunaan bahasa dalam email Ifa. Nilailah ketepatan setiap pernyataan berdasarkan kaidah bahasa Indonesia!",
+        statements: [
+          "Penggunaan kata 'baru saja' dan keterangan waktu 'minggu lalu' dalam satu kalimat menimbulkan ketidakefisienan informasi karena keduanya menyatakan waktu kejadian yang sama.",
+          "Kata 'sekadar' pada kalimat yang menjelaskan harapan penulis dapat diganti dengan 'sekedar' tanpa memengaruhi ketepatan bentuk bakunya.",
+          "Penulisan kata 'Jumat' pada kalimat yang menyebutkan waktu pelaksanaan kegiatan sudah sesuai dengan kaidah penggunaan huruf kapital untuk nama hari.",
+          "Tanda koma sebelum kata 'melainkan' pada kalimat yang membandingkan tugas petugas kebersihan dengan tanggung jawab warga sekolah sudah digunakan secara tepat."
+        ],
+        correct: ["Benar", "Salah", "Benar", "Benar"],
+        expl: "Pernyataan 1 (Benar - pleonastis), 2 (Salah - bentuk baku yang benar adalah 'sekadar', bukan 'sekedar'), 3 (Benar), 4 (Benar)."
+      },
+      {
+        id: 28, type: 'mcq', passage: 'p10', weight: 3,
+        q: "Dalam teks disebutkan bahwa rayap berperan sebagai dekomposer. Berdasarkan konteks penggunaannya, makna istilah tersebut adalah ....",
+        opts: [
+          "organisme yang menguraikan sisa makhluk hidup menjadi zat yang lebih sederhana",
+          "organisme yang mengubah zat sederhana menjadi sumber makanan bagi makhluk hidup lain.",
+          "organisme yang memanfaatkan makhluk hidup lain sebagai sumber makanan utama.",
+          "organisme yang memindahkan unsur hara dari dalam tanah ke bagian tubuh tumbuhan."
+        ],
+        correct: 0,
+        expl: "Dekomposer berarti pengurai bahan organik/sisa makhluk hidup menjadi unsur dasar yang lebih sederhana."
+      },
+      {
+        id: 29, type: 'mcq', passage: 'p10', weight: 3,
+        q: "Fungsi gagasan pada paragraf ketiga (proses penguraian selulosa oleh mikroorganisme) dalam mendukung gagasan pada paragraf keempat adalah ....",
+        opts: [
+          "menjelaskan proses biologis yang mendasari kemampuan rayap membantu penguraian bahan organik dan pengembalian unsur hara ke tanah.",
+          "memberikan gambaran mengenai jenis makanan rayap yang menjadi penyebab utama kerusakan bangunan dan perabotan manusia.",
+          "memperlihatkan hubungan antara pembagian tugas dalam koloni dengan kemampuan rayap mempertahankan keberlangsungan hidup kelompoknya.",
+          "menunjukkan bahwa mikroorganisme dalam tubuh rayap merupakan faktor utama yang menentukan persebaran rayap di lingkungan tropis."
+        ],
+        correct: 0,
+        expl: "Paragraf 3 menerangkan mekanismenya (pencernaan/selulosa), yang melandasi manfaat ekologis rayap di paragraf 4."
+      },
+      {
+        id: 30, type: 'mcq', passage: 'p10', weight: 3,
+        q: "Bayangkan populasi rayap di suatu kawasan hutan mengalami penurunan secara drastis. Berdasarkan informasi dalam teks, kemungkinan yang terjadi adalah ....",
+        opts: [
+          "penguraian kayu dan sisa tumbuhan berpotensi melambat sehingga pengembalian unsur hara ke dalam tanah ikut terganggu.",
+          "proses penguraian bahan organik tetap berlangsung dengan kecepatan yang sama karena rayap hanya menguraikan sebagian kecil sisa tumbuhan.",
+          "jumlah bahan organik yang terurai meningkat karena berkurangnya aktivitas rayap membuat mikroorganisme bekerja lebih optimal.",
+          "kesuburan tanah meningkat karena berkurangnya terowongan rayap menyebabkan unsur hara lebih banyak tertahan di permukaan tanah."
+        ],
+        correct: 0,
+        expl: "Tanpa rayap, pembusukan/penguraian kayu dan pengembalian hara ke tanah akan terhambat."
+      }
+    ];
+
+    // Struktur Penyimpanan Sesi
+    let currentIndex = 0;
+    const userAnswers = {};
+    let shuffledQuestions = [];
+
+    // Fungsi Fisher-Yates Shuffle
+    function shuffleArray(array) {
+      let arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Inisialisasi Pengacak Opsi Soal saat Ujian Dimulai
+    function prepareQuestions() {
+      shuffledQuestions = questions.map(q => {
+        let newQ = { ...q };
+        if (q.type === 'mcq' || q.type === 'multi') {
+          // Buat array indeks opsi [0, 1, 2, 3]
+          let indices = q.opts.map((_, i) => i);
+          let shuffledIndices = shuffleArray(indices);
+          
+          newQ.renderedOpts = shuffledIndices.map(i => q.opts[i]);
+          newQ.originalIndices = shuffledIndices; // Menyimpan peta indeks asli
+        }
+        return newQ;
+      });
+    }
+
+    function startExamSession() {
+      const name = document.getElementById("student-name").value.trim();
+      const sClass = document.getElementById("student-class").value;
+      const err = document.getElementById("start-error");
+
+      if (!name || !sClass) {
+        err.style.display = "block";
+        return;
+      }
+      err.style.display = "none";
+
+      currentStudent = { name: name, class: sClass };
+      document.getElementById("badge-name").textContent = name;
+      document.getElementById("badge-class").textContent = sClass;
+
+      document.getElementById("start-screen").style.display = "none";
+      document.getElementById("exam-screen").style.display = "block";
+
+      prepareQuestions();
+      renderPalette();
+      loadQuestion(0);
+      startTimer(60 * 60);
+      examStarted = true;
+    }
+
+    function renderPalette() {
+      const palette = document.getElementById("number-palette");
+      palette.innerHTML = "";
+      shuffledQuestions.forEach((q, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "num-btn";
+        btn.id = `palette-${idx}`;
+        btn.textContent = idx + 1;
+        btn.onclick = () => loadQuestion(idx);
+        palette.appendChild(btn);
+      });
+    }
+
+    function loadQuestion(idx) {
+      currentIndex = idx;
+      const q = shuffledQuestions[idx];
+      
+      document.getElementById("reading-area").textContent = passages[q.passage] || "";
+      document.getElementById("q-text").textContent = `Soal ${idx + 1}: ${q.q}`;
+
+      const optContainer = document.getElementById("q-options");
+      optContainer.innerHTML = "";
+
+      if (q.type === 'mcq') {
+        const labels = ['A', 'B', 'C', 'D'];
+        q.renderedOpts.forEach((optText, rIdx) => {
+          const originalIdx = q.originalIndices[rIdx];
+          const label = document.createElement("label");
+          label.className = "option-label";
+
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `opt-${idx}`;
+          input.value = originalIdx;
+          if (userAnswers[idx] === originalIdx) input.checked = true;
+
+          input.onchange = () => {
+            userAnswers[idx] = originalIdx;
+            updatePaletteStatus();
+          };
+
+          const span = document.createElement("span");
+          span.textContent = `${labels[rIdx]}. ${optText}`;
+
+          label.appendChild(input);
+          label.appendChild(span);
+          optContainer.appendChild(label);
+        });
+
+      } else if (q.type === 'multi') {
+        const labels = ['A', 'B', 'C', 'D'];
+        if (!userAnswers[idx]) userAnswers[idx] = [];
+
+        q.renderedOpts.forEach((optText, rIdx) => {
+          const originalIdx = q.originalIndices[rIdx];
+          const label = document.createElement("label");
+          label.className = "option-label";
+
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          input.value = originalIdx;
+          if (userAnswers[idx].includes(originalIdx)) input.checked = true;
+
+          input.onchange = () => {
+            if (input.checked) {
+              if (!userAnswers[idx].includes(originalIdx)) userAnswers[idx].push(originalIdx);
+            } else {
+              userAnswers[idx] = userAnswers[idx].filter(i => i !== originalIdx);
+            }
+            updatePaletteStatus();
+          };
+
+          const span = document.createElement("span");
+          span.textContent = `${labels[rIdx]}. ${optText}`;
+
+          label.appendChild(input);
+          label.appendChild(span);
+          optContainer.appendChild(label);
+        });
+
+      } else if (q.type === 'matrix') {
+        if (!userAnswers[idx]) userAnswers[idx] = {};
+
+        const table = document.createElement("table");
+        table.className = "matrix-table";
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Pernyataan</th>
+              <th>Benar</th>
+              <th>Salah</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${q.statements.map((stmt, sIdx) => `
+              <tr>
+                <td style="text-align:center;">${sIdx + 1}</td>
+                <td>${stmt}</td>
+                <td class="center">
+                  <input type="radio" name="stmt-${idx}-${sIdx}" value="Benar" ${userAnswers[idx][sIdx] === 'Benar' ? 'checked' : ''} onchange="saveMatrixAnswer(${idx}, ${sIdx}, 'Benar')">
+                </td>
+                <td class="center">
+                  <input type="radio" name="stmt-${idx}-${sIdx}" value="Salah" ${userAnswers[idx][sIdx] === 'Salah' ? 'checked' : ''} onchange="saveMatrixAnswer(${idx}, ${sIdx}, 'Salah')">
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        `;
+        optContainer.appendChild(table);
+      }
+
+      document.getElementById("prev-btn").disabled = (idx === 0);
+      document.getElementById("next-btn").textContent = (idx === shuffledQuestions.length - 1) ? "Selesai" : "Berikutnya";
+      updatePaletteStatus();
+    }
+
+    function saveMatrixAnswer(qIdx, sIdx, val) {
+      if (!userAnswers[qIdx]) userAnswers[qIdx] = {};
+      userAnswers[qIdx][sIdx] = val;
+      updatePaletteStatus();
+    }
+
+    function updatePaletteStatus() {
+      shuffledQuestions.forEach((q, idx) => {
+        const btn = document.getElementById(`palette-${idx}`);
+        if (!btn) return;
+        btn.className = "num-btn";
+        
+        let isAnswered = false;
+        if (q.type === 'mcq' && userAnswers[idx] !== undefined) isAnswered = true;
+        if (q.type === 'multi' && userAnswers[idx] && userAnswers[idx].length > 0) isAnswered = true;
+        if (q.type === 'matrix' && userAnswers[idx] && Object.keys(userAnswers[idx]).length === q.statements.length) isAnswered = true;
+
+        if (isAnswered) btn.classList.add("answered");
+        if (idx === currentIndex) btn.classList.add("current");
+      });
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0) loadQuestion(currentIndex - 1);
+    }
+
+    function nextQuestion() {
+      if (currentIndex < shuffledQuestions.length - 1) {
+        loadQuestion(currentIndex + 1);
+      } else {
+        submitExam();
+      }
+    }
+
+    function submitExam() {
+      let earnedPoints = 0;
+      let maxPoints = 0;
+      let answeredCount = 0;
+
+      shuffledQuestions.forEach((q, idx) => {
+        maxPoints += q.weight;
+
+        if (q.type === 'mcq') {
+          if (userAnswers[idx] !== undefined) answeredCount++;
+          if (userAnswers[idx] === q.correct) earnedPoints += q.weight;
+
+        } else if (q.type === 'multi') {
+          if (userAnswers[idx] && userAnswers[idx].length > 0) answeredCount++;
+          const ans = userAnswers[idx] || [];
+          const isCorrect = ans.length === q.correct.length && ans.every(val => q.correct.includes(val));
+          if (isCorrect) earnedPoints += q.weight;
+
+        } else if (q.type === 'matrix') {
+          const ansObj = userAnswers[idx] || {};
+          if (Object.keys(ansObj).length > 0) answeredCount++;
+          let stmtPoints = 0;
+          q.statements.forEach((_, sIdx) => {
+            if (ansObj[sIdx] === q.correct[sIdx]) {
+              stmtPoints += 1; // 1 poin per baris benar
+            }
+          });
+          earnedPoints += stmtPoints;
+        }
+      });
+
+      const confirmSubmit = confirm(`Nama: ${currentStudent.name} (${currentStudent.class})\nTerjawab: ${answeredCount} dari ${shuffledQuestions.length} soal.\nPeringatan Berpindah Tab: ${cheatCount} kali.\nApakah Anda yakin ingin mengumpulkan?`);
+      if (!confirmSubmit) return;
+
+      examSubmitted = true;
+      const finalScore = Math.round((earnedPoints / maxPoints) * 100);
+
+      // Tampilkan Hasil di Layar Siswa
+      const resDiv = document.getElementById("score-result");
+      resDiv.innerHTML = `
+        <div style="background:#f1f5f9; padding: 12px; border-radius: 6px; margin-top: 10px;">
+          <p style="font-size:13px; color:#64748b;">Hasil Peserta:</p>
+          <p style="font-size:15px; font-weight:700;">${currentStudent.name} (${currentStudent.class})</p>
+          <p style="margin-top:6px;">Skor Akhir: <span style="color:var(--primary); font-size:24px;">${finalScore}</span> / 100</p>
+          <p style="font-size:12px; color:#dc2626;">Pelanggaran Berpindah Layar: ${cheatCount} Kali</p>
+        </div>
+      `;
+
+      // Injeksi Pengiriman Data Hasil Ujian ke Google Sheet
+      sendResultToGoogleSheet(currentStudent.name, currentStudent.class, finalScore, cheatCount);
+
+      alert(`Ujian Selesai!\nSiswa: ${currentStudent.name} (${currentStudent.class})\nNilai: ${finalScore}\nPelanggaran Layar: ${cheatCount} kali.`);
+    }
+
+    function sendResultToGoogleSheet(nama, kelas, nilai, kecurangan) {
+      const payload = {
+        nama: nama,
+        kelas: kelas,
+        nilai: nilai,
+        kecurangan: kecurangan,
+        paket: "Paket 2 TKA 2026",
+        waktu: new Date().toLocaleString("id-ID")
+      };
+
+      fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        console.log("Data hasil ujian berhasil dikirim ke Google Sheets.");
+      }).catch(err => {
+        console.error("Gagal mengirim ke Google Sheets:", err);
+      });
+    }
+
+    function switchTab(tab, element) {
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+
+      element.classList.add("active");
+      if (tab === 'exam') {
+        document.getElementById("exam-tab").classList.add("active");
+      } else {
+        document.getElementById("solutions-tab").classList.add("active");
+      }
+    }
+
+    function unlockSolutions() {
+      const pass = document.getElementById("pass-input").value;
+      const msg = document.getElementById("lock-msg");
+      if (pass === SECRET_CODE) {
+        document.getElementById("lock-screen").style.display = "none";
+        document.getElementById("unlocked-screen").style.display = "block";
+        document.getElementById("pass-input").value = "";
+        msg.textContent = "";
+        renderSolutions();
+      } else {
+        msg.textContent = "Password salah. Hubungi Pengawas / MGMP BINDO.";
+      }
+    }
+
+    function lockAgain() {
+      document.getElementById("pass-input").value = "";
+      document.getElementById("lock-screen").style.display = "block";
+      document.getElementById("unlocked-screen").style.display = "none";
+    }
+
+    function renderSolutions() {
+      const list = document.getElementById("solutions-list");
+      const optLabels = ['A', 'B', 'C', 'D'];
+      list.innerHTML = "";
+
+      questions.forEach((q, idx) => {
+        const item = document.createElement("div");
+        item.className = "expl-item";
+
+        let keyText = "";
+        if (q.type === 'mcq') {
+          keyText = `<span class="badge-key">${optLabels[q.correct]}</span>`;
+        } else if (q.type === 'multi') {
+          keyText = q.correct.map(i => `<span class="badge-key">${optLabels[i]}</span>`).join(" ");
+        } else if (q.type === 'matrix') {
+          keyText = `<br><ol style="margin-left:20px;">` + q.correct.map((c, i) => `<li>Pernyataan ${i+1}: <strong>${c}</strong></li>`).join("") + `</ol>`;
+        }
+
+        item.innerHTML = `
+          <p><strong>Soal ${idx + 1}:</strong> ${q.q}</p>
+          <p style="margin: 6px 0;">Kunci Jawaban: ${keyText}</p>
+          <p style="font-size: 14px; color: #475569;"><strong>Pembahasan:</strong> ${q.expl}</p>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function startTimer(duration) {
+      let timer = duration;
+      const display = document.getElementById('timer');
+      const interval = setInterval(function () {
+        let minutes = parseInt(timer / 60, 10);
+        let seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = `Waktu: ${minutes}:${seconds}`;
+
+        if (--timer < 0) {
+          clearInterval(interval);
+          alert("Waktu pengerjaan telah habis!");
+          submitExam();
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
